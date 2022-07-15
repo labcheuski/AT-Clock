@@ -246,7 +246,7 @@ void p10_init(SPI_HandleTypeDef * phspi) {
 //  p10_buf[99]  = ~0b00111100;
 }
 
-void p10_tick() {
+void p10_tick_b1() {
   //Выключаем светодиоды
   HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_RESET);
 
@@ -266,6 +266,30 @@ void p10_tick() {
   //Зажигаем светодиоды
   HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_SET);
 //  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+}
+
+void p10_tick() {
+  //Выключаем светодиоды
+  HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_RESET);
+
+  //Устанавливем адрес переданой страницы
+  HAL_GPIO_WritePin(P10_A_GPIO_Port, P10_A_Pin, (~p10_page & 1));
+  HAL_GPIO_WritePin(P10_B_GPIO_Port, P10_B_Pin, (~p10_page >> 1 & 1));
+
+  //Импульс на фиксацию данных
+  HAL_GPIO_WritePin(P10_L_GPIO_Port, P10_L_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(P10_L_GPIO_Port, P10_L_Pin, GPIO_PIN_RESET);
+
+  //Зажигаем светодиоды
+  HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_SET);
+//  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
+  //Передаём следующую страницу
+  p10_page += 1;
+  if (p10_page >= 4) p10_page = 0;
+  HAL_SPI_Transmit(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE, 100);
+//  HAL_SPI_Transmit_DMA(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE);
+//  HAL_SPI_Transmit_IT(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE);
 }
 
 void p10_tock() {
@@ -300,10 +324,18 @@ void p10_putnumber(int x, uint8_t n, uint8_t invers) {
 }
 
 void p10_putint(int x, int value, uint8_t invers) {
+  uint8_t minus = 0;
+  if (value < 0) {
+    minus = 1;
+    value = -value;
+  }
   for (int i = 1; i <= 6; i++) {
     p10_putnumber(x - i*10 + 2, value % 10, invers);
     value = value / 10;
-    if (value == 0) break;
+    if (value == 0) {
+      if (minus) p10_putrect(x - i*10 -3, 7, 4, 2, 1);
+      break;
+    }
   }
 }
 
