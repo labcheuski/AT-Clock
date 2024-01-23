@@ -190,6 +190,90 @@ uint8_t font8x16numbers[10][16] = {
   }
 };
 
+uint8_t font4x7numbers[10][7] = {
+  {
+    0b10011111,
+    0b01101111,
+    0b01101111,
+    0b01101111,
+    0b01101111,
+    0b01101111,
+    0b10011111,
+  }, {
+    0b11101111,
+    0b11001111,
+    0b10101111,
+    0b11101111,
+    0b11101111,
+    0b11101111,
+    0b11101111,
+  }, {
+    0b00011111,
+    0b11101111,
+    0b11101111,
+    0b11101111,
+    0b11011111,
+    0b10111111,
+    0b00001111,
+  }, {
+    0b00011111,
+    0b11101111,
+    0b11101111,
+    0b10011111,
+    0b11101111,
+    0b11101111,
+    0b00011111,
+  }, {
+    0b01101111,
+    0b01101111,
+    0b01101111,
+    0b00001111,
+    0b11101111,
+    0b11101111,
+    0b11101111,
+  }, {
+    0b00001111,
+    0b01111111,
+    0b01111111,
+    0b00011111,
+    0b11101111,
+    0b11101111,
+    0b00011111,
+  }, {
+    0b10011111,
+    0b01111111,
+    0b01111111,
+    0b00011111,
+    0b01101111,
+    0b01101111,
+    0b10011111,
+  }, {
+    0b00001111,
+    0b11101111,
+    0b11011111,
+    0b11011111,
+    0b10111111,
+    0b10111111,
+    0b10111111,
+  }, {
+    0b10011111,
+    0b01101111,
+    0b01101111,
+    0b10011111,
+    0b01101111,
+    0b01101111,
+    0b10011111,
+  }, {
+    0b10011111,
+    0b01101111,
+    0b01101111,
+    0b10001111,
+    0b11101111,
+    0b11101111,
+    0b10011111,
+  }
+};
+
 int xy2addr(int x, int y) {
   y = P10_HEIGHT - 1 - y;
   return ((y & 0b11) * P10_BUF_PAGE_SIZE) + (x >> 3 << 2) + (y >> 2);
@@ -208,6 +292,8 @@ void p10_flip() {
   buf = p10_buf_live;
   p10_buf_live = p10_buf;
   p10_buf = buf;
+
+  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 }
 
 void p10_setxy(int x, int y, uint8_t value) {
@@ -246,35 +332,17 @@ void p10_init(SPI_HandleTypeDef * phspi) {
 //  p10_buf[99]  = ~0b00111100;
 }
 
-void p10_tick_b1() {
-  //Выключаем светодиоды
-  HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_RESET);
-
-  //Передаём следующую страницу
-  p10_page += 1;
-  if (p10_page >= 4) p10_page = 0;
-  HAL_SPI_Transmit(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE, 100);
-
-  //Устанавливем адрес переданой страницы
-  HAL_GPIO_WritePin(P10_A_GPIO_Port, P10_A_Pin, (~p10_page & 1));
-  HAL_GPIO_WritePin(P10_B_GPIO_Port, P10_B_Pin, (~p10_page >> 1 & 1));
-
-  //Импульс на фиксацию данных
-  HAL_GPIO_WritePin(P10_L_GPIO_Port, P10_L_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(P10_L_GPIO_Port, P10_L_Pin, GPIO_PIN_RESET);
-
-  //Зажигаем светодиоды
-  HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_SET);
-//  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-}
-
 void p10_tick() {
   //Выключаем светодиоды
   HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_RESET);
 
   //Устанавливем адрес переданой страницы
   HAL_GPIO_WritePin(P10_A_GPIO_Port, P10_A_Pin, (~p10_page & 1));
-  HAL_GPIO_WritePin(P10_B_GPIO_Port, P10_B_Pin, (~p10_page >> 1 & 1));
+  HAL_GPIO_WritePin(P10_B_GPIO_Port, P10_B_Pin, (~p10_page & 0b10));
+
+  //Дождаться окончания передачи DMA
+//  HAL_DMA_PollForTransfer(p10_hspi->hdmatx, HAL_DMA_FULL_TRANSFER, 1000);
+
 
   //Импульс на фиксацию данных
   HAL_GPIO_WritePin(P10_L_GPIO_Port, P10_L_Pin, GPIO_PIN_SET);
@@ -282,20 +350,16 @@ void p10_tick() {
 
   //Зажигаем светодиоды
   HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_SET);
-//  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
 
   //Передаём следующую страницу
   p10_page += 1;
   if (p10_page >= 4) p10_page = 0;
-  HAL_SPI_Transmit(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE, 100);
-//  HAL_SPI_Transmit_DMA(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE);
-//  HAL_SPI_Transmit_IT(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE);
+  HAL_SPI_Transmit_DMA(p10_hspi, &p10_buf_live[p10_page * P10_BUF_PAGE_SIZE], P10_BUF_PAGE_SIZE);
 }
 
 void p10_tock() {
   //Выключаем светодиоды
   HAL_GPIO_WritePin(P10_OE_GPIO_Port, P10_OE_Pin, GPIO_PIN_RESET);
-//  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
 }
 
 void p10_putnumber(int x, uint8_t n, uint8_t invers) {
@@ -333,16 +397,50 @@ void p10_putint(int x, int value, uint8_t invers) {
     p10_putnumber(x - i*10 + 2, value % 10, invers);
     value = value / 10;
     if (value == 0) {
-      if (minus) p10_putrect(x - i*10 -3, 7, 4, 2, 1);
+      if (minus) p10_putrect(x - i*10 -3, 7, 4, 2, ~invers);
       break;
     }
   }
 }
 
-void p10_putscreen(uint8_t * screen) {
-  for (int y = 0; y < P10_HEIGHT; y++) {
-    for (int x = 0; x < P10_WIDTH / 8; x++) {
-      p10_buf[xy2addr(x * 8, y)] = ~ screen[y * P10_WIDTH/8 + x];
+void p10_putnumber4x7(int x, int y, uint8_t n, uint8_t invers) {
+  invers = invers ? 0xFF : 0x00;
+  for (int h = 0; h < 7; h++) {
+    int a = xy2addr(x, y + h);
+    int s = 7 - x2shift(x);
+
+    if (s < 4) {
+      if (in_domain(x, y + h)) {
+        p10_buf[a] &= ~ (0xF0 >> s);
+        p10_buf[a] |= ((invers ^ font4x7numbers[n][h]) & 0xF0) >> s;
+      }
+    } else {
+      if (in_domain(x, y + h)) {
+        p10_buf[a] &= ~ (0xF0 >> s);
+        p10_buf[a] |= ((invers ^ font4x7numbers[n][h]) & 0xF0) >> s;
+      }
+      if (in_domain(x + 4, y + h)) {
+        a += 4;
+        s = 8 - s;
+        p10_buf[a] &= ~ (0xF0 << s);
+        p10_buf[a] |= ((invers ^ font4x7numbers[n][h]) & 0xF0) << s;
+      }
+    }
+  }
+}
+
+void p10_putint4x7(int x, int y, int value, uint8_t invers) {
+  uint8_t minus = 0;
+  if (value < 0) {
+    minus = 1;
+    value = -value;
+  }
+  for (int i = 1; i <= 100; i++) {
+    p10_putnumber4x7(x - i*5 + 1, y, value % 10, invers);
+    value = value / 10;
+    if (value == 0) {
+      if (minus) p10_putrect(x - i*5 -2, y + 3, 3, 1, ~invers);
+      break;
     }
   }
 }
@@ -351,6 +449,91 @@ void p10_putrect(int x, int y, int w, int h, uint8_t v) {
   for (int ix = x; ix < x + w; ix++) {
     for (int iy = y; iy < y + h; iy++) {
       p10_setxy(ix, iy, v);
+    }
+  }
+}
+
+void p10_putscreen(uint8_t * screen) {
+  for (int y = 0; y < P10_HEIGHT; y++) {
+    for (int x = 0; x < P10_WIDTH; x += 8) {
+      p10_buf[xy2addr(x, y)] = ~ *(screen++);
+    }
+  }
+}
+
+///**
+// * @param int w - max width is 8
+// */
+//void p10_putsprite(int x, int y, int w, int h, uint8_t *sprite, uint8_t invers) {
+//  invers = invers ? 0xFF : 0x00;
+//  uint8_t mask = 0xFF << (8 - w);
+//  for (int v = 0; v < 7; v++) {
+//    int a = xy2addr(x, y + v);
+//    int s = 7 - x2shift(x);
+//
+//    if (!in_domain(x, y + v)) break;
+//    if (s < w) {
+//      p10_buf[a] &= ~ (mask >> s);
+//      p10_buf[a] |= ((invers ^ sprite[v]) & mask) >> s;
+//    } else {
+//      p10_buf[a] &= ~ (mask >> s);
+//      p10_buf[a] |= ((invers ^ sprite[v]) & mask) >> s;
+//      if (in_domain(x + w, y + v)) {
+//        a += 4;
+//        s = 8 - s;
+//        p10_buf[a] &= ~ (mask << s);
+//        p10_buf[a] |= ((invers ^ sprite[v]) & mask) << s;
+//      }
+//    }
+//  }
+//}
+
+void p10_putsprite(int x, int y, int w, int h, uint8_t *sprite, uint8_t invers) {
+  invers = invers ? 0xFF : 0x00;
+  int line_size = (w >> 3) + ((w & 0b111) ? 1 : 0);
+
+  //Левы слупок
+  int s = 7 - x2shift(x);
+  uint8_t mask;
+  if (s > 0) {
+    if (w >= 8) {
+      mask = 0xFF;
+    } else {
+      mask = 0xFF << (8 - w);
+    }
+    uint8_t eraser = mask >> s;
+    for (int iy = 0; iy < h; iy++) {
+      if (!in_domain(x, y + iy)) break;
+      int a = xy2addr(x, y + iy);
+      p10_buf[a] &= ~ eraser;
+      p10_buf[a] |= (sprite[iy * line_size] ^ invers & mask) >> s;
+    }
+  }
+
+  //Поўныя слупкі пасярэдзіне
+  int ix;
+  for (ix = 8 - s; ix < w - 8; ix += 8) {
+    for (int iy = 0; iy < h; iy++) {
+      if (!in_domain(x + ix, y + iy)) break;
+      int a = xy2addr(x + ix, y + iy);
+      uint8_t *p = &sprite[iy * line_size + (ix >> 3)];
+      uint8_t b = *p << (8 - s);
+      b |= *++p >> s;
+      p10_buf[a] = b ^ invers;
+    }
+  }
+
+  //Правы слупок
+  if (ix < w) {
+    mask = 0xFF << (8 - (w - ix));
+    for (int iy = 0; iy < h; iy++) {
+      if (!in_domain(x + ix, y + iy)) break;
+      int a = xy2addr(x + ix, y + iy);
+      p10_buf[a] &= ~ mask;
+      uint8_t *p = &sprite[iy * line_size + (ix >> 3)];
+      uint8_t b = *p << (8 - s);
+      b |= *++p >> s;
+      p10_buf[a] |= (b ^ invers) & mask;
     }
   }
 }
