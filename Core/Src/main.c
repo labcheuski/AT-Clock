@@ -1218,7 +1218,7 @@ void main_loop_v5() {
         out2[1] = 0;
         out2[2] = 1;
         out2[3] = program;
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, out2, 2, 1000);
+        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, out2, 4, 1000);
         HAL_Delay(20);
       }
     }
