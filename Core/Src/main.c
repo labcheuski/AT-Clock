@@ -83,6 +83,7 @@ DMA_HandleTypeDef hdma_spi2_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
 
@@ -96,6 +97,7 @@ static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 //#define BRIGHTNESS_STEPS 10
@@ -122,6 +124,10 @@ int BCDToInt(int BCD)
 {
    return (((BCD >> 4) * 10) + (BCD & 0xF));
 }
+int BCDTimeToInt(uint8_t *Time, int subsecond) {
+  return 60*60*100 * BCDToInt(Time[2]) + 60*100 * BCDToInt(Time[1]) + 100 * BCDToInt(Time[0]) + 10 * subsecond;
+}
+
 
 /*
 uint8_t p10_test[P10_BUF_SIZE] = {
@@ -283,6 +289,26 @@ uint8_t p10_signal[P10_BUF_SIZE] = {
     0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b00000100,
     0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b00000100,
     0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001011, 0b11100100,
+};
+
+uint8_t p10_timer3_setup[P10_BUF_SIZE] = {
+    0b01110111, 0b11000110, 0b11100111, 0b11000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00001010, 0b10010001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b10010001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b11100001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00011110, 0b10000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b10000001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110001, 0b00010010, 0b10000001, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
 };
 
 uint8_t p10_sprite1[6] = {
@@ -776,7 +802,6 @@ void button_filter() {
 
 void main_loop_sound()
 {
-
   p10_putrect(0, 0, 64, 16, 0);
 
   int prescaler = 159;
@@ -874,8 +899,14 @@ void show_stopwatch2(int time) {
 void show_timer3(int time) {
   p10_clrscr();
 
-  if (time < 0) {
+  if (time <= -1*60*60*100) {
+    p10_putrect(1, 7, 6, 2, 1);
+  } else if (time <= -10*60*100) {
+    p10_putrect(14, 7, 6, 2, 1);
+  } else if (time < 0) {
     p10_putrect(24, 7, 6, 2, 1);
+  }
+  if (time < 0) {
     time = 99 - time;
   }
 
@@ -883,12 +914,76 @@ void show_timer3(int time) {
   p10_putnumber(56, time % 10, 0);
   time = time / 10;
   p10_putnumber(46, time % 6, 0);
+  p10_putrect(42, 4, 3, 2, 1);
+  p10_putrect(42, 10, 3, 2, 1);
   time = time / 6;
   p10_putnumber(33, time % 10, 0);
   time = time / 10;
-  if (time > 0) p10_putnumber(23, time % 6, 0);
-  p10_putrect(42, 4, 3, 2, 1);
-  p10_putrect(42, 10, 3, 2, 1);
+  if (time <= 0) return;
+  p10_putnumber(23, time % 6, 0);
+  time = time / 6;
+  if (time <= 0) return;
+  p10_putrect(19, 4, 3, 2, 1);
+  p10_putrect(19, 10, 3, 2, 1);
+  p10_putnumber(10, time % 10, 0);
+  time = time / 10;
+  if (time <= 0) return;
+  p10_putnumber(0, time % 10, 0);
+}
+
+void show_timer3_setup(int time, int start_time, int mode, int blink) {
+  p10_putscreen(p10_timer3_setup);
+
+  if (!blink) mode = 0;
+  //момант старту
+  start_time /= 100;
+  if (mode != 3) p10_putnumber4x7(60, 0, start_time % 10, 0);
+  start_time /= 10;
+  if (mode != 3) p10_putnumber4x7(55, 0, start_time % 6, 0);
+  p10_setxy(53, 2, 1);
+  p10_setxy(53, 4, 1);
+  start_time /= 6;
+  if (mode != 4) p10_putnumber4x7(48, 0, start_time % 10, 0);
+  start_time /= 10;
+  if (mode != 4) p10_putnumber4x7(43, 0, start_time % 6, 0);
+  p10_setxy(41, 2, 1);
+  p10_setxy(41, 4, 1);
+  start_time /= 6;
+  if (mode != 5) p10_putnumber4x7(36, 0, start_time % 10, 0);
+  start_time /= 10;
+  if (start_time > 0) if (mode != 5) p10_putnumber4x7(31, 0, start_time % 10, 0);
+
+  //таймер
+  if (time <= -1*60*60*100) {
+    p10_putrect(32, 12, 3, 1, 1);
+  } else if (time <= -10*60*100) {
+    p10_putrect(39, 12, 3, 1, 1);
+  } else if (time < 0) {
+    p10_putrect(44, 12, 3, 1, 1);
+  }
+  if (time < 0) {
+    time = 99 - time;
+  }
+
+  time /= 100;
+  p10_putnumber4x7(60, 9, time % 10, 0);
+  time /= 10;
+  p10_putnumber4x7(55, 9, time % 6, 0);
+  p10_setxy(53, 11, 1);
+  p10_setxy(53, 13, 1);
+  time /= 6;
+  p10_putnumber4x7(48, 9, time % 10, 0);
+  time /= 10;
+  if (time <= 0) return;
+  p10_putnumber4x7(43, 9, time % 6, 0);
+  time /= 6;
+  if (time <= 0) return;
+  p10_setxy(41, 11, 1);
+  p10_setxy(41, 13, 1);
+  p10_putnumber4x7(36, 9, time % 10, 0);
+  time /= 10;
+  if (time <= 0) return;
+  p10_putnumber4x7(31, 9, time % 10, 0);
 }
 
 void show_numbers(uint8_t Buf[], int number, int trafic) {
@@ -1611,7 +1706,7 @@ void main_loop_v3() {
   }
 }
 
-uint8_t TimeBuf[3];
+uint8_t TimeBuf[4];
 
 void main_loop_v4() {
   uint8_t Time[3];
@@ -1821,7 +1916,9 @@ void main_loop_v4() {
     }
 
     //Секундамер - старт (аўта зброс у спыненным стане)
-    if (button_up_pressed && program == PROGRAM_STOPWATCH && mode == 0) {
+//    if (button_up_pressed && program == PROGRAM_STOPWATCH && mode == 0) {
+    //Бізон. Старт па адрыву нагі
+    if (button_up_unpressed && program == PROGRAM_STOPWATCH && mode == 0) {
       if (sw_state == SW_READY || sw_state == SW_STOPPED) {
         uint8_t Out4[4];
         memset(Out4, 0, 4);
@@ -1830,7 +1927,7 @@ void main_loop_v4() {
         last_second = 0;
         loop_cnt = 0;
         sw_state = SW_STARTED;
-        //buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
+        buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
         continue;
       }
     }
@@ -1847,7 +1944,7 @@ void main_loop_v4() {
       sw_state = SW_STOPPED;
       sw_time = second * 100 + MIN(99, loop_cnt * 100 / MAX(1, last_loop_cnt));
       refresh = 1;
-      //buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+      buzzer(BUZZER_PRESCALER2, last_loop_cnt);
     }
 
     //Адлік таймера
@@ -2007,6 +2104,426 @@ void main_loop_v4() {
 
   }
 }
+
+void asd(int v1, int v2) {
+  p10_putint4x7(64, 0, v1, 0);
+  p10_putint4x7(64, 8, v2, 0);
+  p10_flip();
+  HAL_Delay(5000);
+}
+
+void main_loop_v5() {
+  uint8_t Time[3];
+  uint8_t last_second = 0xFF;
+  int loop_cnt = 0;
+  int last_loop_cnt = 0;
+  int second = 0;
+  int subsecond = 0;
+  int last_subsecond = -1;
+  int program = PROGRAM_CLOCK;
+  int mode = 0;
+  int mode_back = 0;
+  int t3_time = 0;
+  int t3_start_time = -1;
+  int sw_state = SW_READY;
+  int sw_time = 0;
+  int number = 0;
+  int refresh = 1;
+  int brightness_freeze = 0;
+  int blink_freeze = 0;
+  int interval_second = 0;
+
+//  p10_putscreen(p10_start);
+//  p10_flip();
+//  HAL_Delay(1000);
+
+  //наладкі з памяці
+  uint8_t buf[8];
+  buf[0] = 0x05;
+  HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, buf, 1, 1000);
+  HAL_Delay(5);
+  HAL_I2C_Master_Receive(&hi2c1, DEV_ADDR, buf, 2, 1000);
+  program = buf[1] & 0b00000111;
+  if (program >= PROGRAM_CNT) program = PROGRAM_CLOCK;
+
+  while (1) {
+    int second_changed = 0;
+    int subsecond_changed = 0;
+
+    //Get Time
+    Time[0] = 0;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, DEV_ADDR, Time, 1);
+    HAL_Delay(5); //каб не міргаў
+    memcpy(Time, TimeBuf, 3);
+
+    loop_cnt++;
+    if (last_second != Time[0]) {
+      last_second = Time[0];
+      last_loop_cnt = loop_cnt;
+      loop_cnt = 0;
+      second = BCDToInt(Time[1]) * 60 + BCDToInt(Time[0]);
+      second_changed = 1;
+    }
+    if (last_loop_cnt > 0) {
+      subsecond = loop_cnt * 10 / last_loop_cnt;
+      if (subsecond > 9) subsecond = 9;
+    }
+    if (last_subsecond != subsecond) {
+      last_subsecond = subsecond;
+      subsecond_changed = 1;
+    }
+
+    buzzer_off();
+    button_filter();
+
+    //Гук
+    if (second_changed) {
+      interval_second = second % signals[signal_index];
+
+      if (program == PROGRAM_CLOCK && mode == 0 && signals[signal_index] > 0) {
+        if (interval_second == 0) {
+          buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+        } else if (interval_second + 4 - signals[signal_index] >= 0 && signals[signal_index] >= 10) {
+          buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
+        }
+      }
+
+      if (program == PROGRAM_NUMBERS && mode == 0 && signals[signal_index] > 0) {
+        if (interval_second == 0) {
+          buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+        } else if (interval_second + 4 - signals[signal_index] >= 0 && signals[signal_index] >= 10) {
+          buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
+        }
+        if ((signals[signal_index] >= 10 && interval_second == 3)
+            || (signals[signal_index] < 10 && interval_second == 1))
+        {
+          number++;
+          if (number >= 1000) number = 0;
+        }
+      }
+    }
+
+//    угчванне кнопак - непрыгожа атрымліваецца
+//    if (button_mode_pressed || button_up_pressed || button_down_pressed) {
+//      buzzer(BUZZER_PRESCALER_BUTTON, 1);
+//    }
+
+    //Гадзіннік
+    if (program == PROGRAM_CLOCK && (mode == 0 || mode >= 3)) {
+      if (second_changed || (subsecond_changed && subsecond == 5)) {
+        if (brightness_freeze > 0) {
+          brightness_freeze--;
+        }
+        if (blink_freeze > 0) {
+          blink_freeze--;
+        }
+        refresh = 1;
+      }
+    }
+
+    //Нумары
+    if (program == PROGRAM_NUMBERS && (mode == 0 || mode >= 4)) {
+      if (second_changed || (subsecond_changed && subsecond == 5)) {
+        if (blink_freeze > 0) {
+          blink_freeze--;
+        }
+        refresh = 1;
+      }
+    }
+
+    //яркасць
+    if ((button_up_pressed || button_down_pressed)
+        && ((program == PROGRAM_CLOCK && mode == 0)
+            || (program == PROGRAM_STOPWATCH && mode == 2)
+            || (program == PROGRAM_TIMER3 && mode == 2)
+            || (program == PROGRAM_NUMBERS && mode == 3)))
+    {
+      if (button_up_pressed) {
+        if (brightness_index < BRIGHTNESS_STEPS - 1) brightness_index++;
+      }
+      if (button_down_pressed) {
+        if (brightness_index > 0) brightness_index--;
+      }
+      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, brightness[brightness_index]);
+      if (mode > 0) mode_back = 1;
+
+      p10_putscreen(p10_brightness);
+      p10_putint(64, brightness[brightness_index] + 1, 0);
+      p10_flip();
+      if (program == PROGRAM_CLOCK && mode == 0) {
+        brightness_freeze = 2;
+      }
+      refresh = 1;
+    }
+
+    //Кнопка змены рэжыму (жоўтая)
+    if (button_mode_pressed) {
+      mode++;
+      if (mode_back) {
+        mode_back = 0;
+        mode = 0;
+      }
+      if (program == PROGRAM_CLOCK && mode > 5) mode = 0;
+      if (program == PROGRAM_STOPWATCH && mode > 2) mode = 0;
+      if (program == PROGRAM_TIMER3 && mode > 5) mode = 0;
+      if (program == PROGRAM_NUMBERS && mode > 6) mode = 0;
+      refresh = 1;
+
+      if (mode == 0) {
+        //Захоўваем наладкі
+        uint8_t out2[2];
+        out2[0] = 0x06;
+        out2[1] = program;
+        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, out2, 2, 1000);
+        HAL_Delay(20);
+      }
+    }
+
+    //пераключэнне праграмы
+    if (mode == 1 && (button_up_pressed || button_down_pressed)) {
+      program += button_up_pressed ? 1 : -1;
+      if (program >= PROGRAM_CNT) program = 0;
+      if (program < 0) program = PROGRAM_CNT - 1;
+      mode_back = 1;
+      refresh = 1;
+    }
+
+    //наладка сігналу
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+        && ((program == PROGRAM_CLOCK && mode == 2)
+            || (program == PROGRAM_NUMBERS && mode == 2)))
+    {
+      if (button_up_pressed || button_up_repeated) {
+        signal_index = MIN(signal_index + 1, SIGNAL_STEPS - 1);
+      }
+      if (button_down_pressed || button_down_repeated) {
+        signal_index = MAX(signal_index - 1, 0);
+      }
+      mode_back = 1;
+      refresh = 1;
+    }
+
+    //наладка часу
+    if (((program == PROGRAM_CLOCK && mode >= 3)
+        || (program == PROGRAM_NUMBERS && mode >= 4))
+        && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated))
+    {
+      uint8_t Out[2];
+      if (program == PROGRAM_CLOCK) {
+        Out[0] = mode - 3;
+      } else {
+        Out[0] = mode - 4;
+      }
+      if (button_up_pressed || button_up_repeated) {
+        switch (Out[0]) {
+        case 2: Out[1] = IntToBCD((BCDToInt(Time[2]) + 1) % 24); break;
+        case 1: Out[1] = IntToBCD((BCDToInt(Time[1]) + 1) % 60); break;
+        case 0: Out[1] = 0; break;
+        }
+      }
+      if (button_down_pressed || button_down_repeated) {
+        switch (Out[0]) {
+        case 2: Out[1] = IntToBCD((BCDToInt(Time[2]) + 23) % 24); break;
+        case 1: Out[1] = IntToBCD((BCDToInt(Time[1]) + 59) % 60); break;
+        case 0: Out[1] = IntToBCD((BCDToInt(Time[0])/10 + 1) * 10 % 60); break;
+        }
+      }
+      HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Out, 2, 1000);
+      last_second = 0xFF;
+      blink_freeze = 3;
+      continue;
+    }
+
+    //Адлік секундамера
+    if (subsecond_changed && program == PROGRAM_STOPWATCH && mode == 0) {
+      if (sw_state == SW_STARTED) {
+        sw_time = second * 100 + subsecond * 10;
+        refresh = 1;
+      }
+    }
+
+    //Секундамер - старт (аўта зброс у спыненным стане)
+//    if (button_up_pressed && program == PROGRAM_STOPWATCH && mode == 0) {
+    //Бізон. Старт па адрыву нагі
+    if (button_up_unpressed && program == PROGRAM_STOPWATCH && mode == 0) {
+      if (sw_state == SW_READY || sw_state == SW_STOPPED) {
+        uint8_t Out4[4];
+        memset(Out4, 0, 4);
+        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Out4, 4, 1000);
+        second = 0;
+        last_second = 0;
+        loop_cnt = 0;
+        sw_state = SW_STARTED;
+        buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
+        continue;
+      }
+    }
+
+    //Секундамер - зброс
+    if (button_up_repeated && program == PROGRAM_STOPWATCH && mode == 0 && sw_state != SW_READY) {
+      sw_state = SW_READY;
+      sw_time = 0;
+      refresh = 1;
+    }
+
+    //Секундамер - стоп
+    if (button_down_pressed && program == PROGRAM_STOPWATCH && mode == 0 && sw_state == SW_STARTED) {
+      sw_state = SW_STOPPED;
+      sw_time = second * 100 + MIN(99, loop_cnt * 100 / MAX(1, last_loop_cnt));
+      refresh = 1;
+      buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+    }
+
+    //Адлік таймера
+    if (subsecond_changed && program == PROGRAM_TIMER3) {
+      t3_time = BCDTimeToInt(Time, subsecond);
+      if (t3_start_time < 0) {
+        t3_start_time = t3_time - t3_time % (60*100) + 4*60*100;
+      }
+      t3_time = t3_time - t3_start_time - 24*60*60*100;
+      if (t3_time <= -10*60*60*100) t3_time += 24*60*60*100;
+      if (t3_time <= -10*60*60*100) t3_time += 24*60*60*100;
+      if (blink_freeze > 0) blink_freeze--;
+      refresh = 1;
+
+      if (mode == 0) {
+        if (t3_time == 0) {
+          buzzer(BUZZER_PRESCALER1, last_loop_cnt);
+        }
+      }
+    }
+    //Таймер. Наладка стартавага часу
+    if ((program == PROGRAM_TIMER3 && mode >= 3)
+        && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated))
+    {
+      if (button_up_pressed || button_up_repeated) {
+        switch (mode) {
+        case 3: t3_start_time += (t3_start_time / 100 % 60 < 59) ? (1*100) : (-59*100); break;
+        case 4: t3_start_time += (t3_start_time / (60*100) % 60 < 59) ? (1*60*100) : (-59*60*100); break;
+        case 5: t3_start_time += (t3_start_time / (60*60*100) % 24 < 23) ? (1*60*60*100) : (-23*60*60*100); break;
+        }
+      }
+      if (button_down_pressed || button_down_repeated) {
+        switch (mode) {
+        case 3: t3_start_time += (t3_start_time / 100 % 60 > 0) ? (-1*100) : (59*100); break;
+        case 4: t3_start_time += (t3_start_time / (60*100) % 60 > 0) ? (-1*60*100) : (59*60*100); break;
+        case 5: t3_start_time += (t3_start_time / (60*60*100) % 24 > 0) ? (-1*60*60*100) : (23*60*60*100); break;
+        }
+      }
+      refresh = 1;
+      blink_freeze = 6;
+      continue;
+    }
+
+    //нумары
+    if (program == PROGRAM_NUMBERS && mode == 0)
+    {
+      if (button_up_pressed || button_up_repeated) {
+        number++;
+        if (number >= 1000) number = 0;
+        refresh = 1;
+      }
+      if (button_down_pressed || button_down_repeated) {
+        number--;
+        if (number < 0) number = 999;
+        refresh = 1;
+      }
+      if (button_up_hold && button_down_hold) {
+        number = 0;
+        refresh = 1;
+      }
+    }
+
+
+    //view
+    if (refresh) {
+      refresh = 0;
+
+      //Гадзіннік
+      if (program == PROGRAM_CLOCK && mode == 0 && brightness_freeze == 0) {
+        show_clock(Time);
+      }
+      else if (program == PROGRAM_CLOCK && mode >= 3) {
+        show_clock(Time);
+        if (subsecond >= 5 && blink_freeze == 0) {
+          p10_putrect((5 - mode) * 23, 0, 18, 16, 0);
+        }
+      }
+
+      //Нумары
+      else if (program == PROGRAM_NUMBERS && mode == 0) {
+        if (signals[signal_index] == 0) {
+          show_numbers(Time, number, -1);
+        } else {
+          if (interval_second < 1 || (signals[signal_index] >= 10 && interval_second < 3)) {
+            show_numbers(Time, number, 0);
+          } else if (signals[signal_index] - interval_second <= 5) {
+            show_numbers(Time, number, signals[signal_index] - interval_second);
+          } else {
+            show_numbers(Time, number, -1);
+          }
+        }
+      }
+      else if (program == PROGRAM_NUMBERS && mode >= 4) {
+        show_numbers(Time, number, -1);
+        if (subsecond >= 5 && blink_freeze == 0) {
+          p10_putrect((6 - mode) * 12 + 31, 0, 9, 7, 0);
+        }
+      }
+
+      //Яркасць
+      else if ((program == PROGRAM_CLOCK && mode == 0 && brightness_freeze > 0)
+          || (program == PROGRAM_STOPWATCH && mode == 2)
+          || (program == PROGRAM_TIMER3 && mode == 2)
+          || (program == PROGRAM_NUMBERS && mode == 3))
+      {
+        p10_putscreen(p10_brightness);
+        p10_putint(64, brightness[brightness_index] + 1, 0);
+      }
+
+      //Праграма
+      else if (mode == 1) {
+        switch (program) {
+        case PROGRAM_CLOCK: p10_putscreen(p10_program_clock); break;
+        case PROGRAM_STOPWATCH: p10_putscreen(p10_program_stopwatch); break;
+        case PROGRAM_TIMER3: p10_putscreen(p10_program_timer3); break;
+        case PROGRAM_NUMBERS: p10_putscreen(p10_program_numbers); break;
+        }
+      }
+
+      //Інтэрвал / Сігнал
+      else if ((program == PROGRAM_CLOCK && mode == 2)
+          || (program == PROGRAM_NUMBERS && mode == 2))
+      {
+        p10_putscreen(p10_signal);
+        if (signals[signal_index] != 0) {
+          p10_putrect(33, 0, 32, 16, 0);
+          p10_putnumber(33, signals[signal_index] / 60 % 10, 0);
+          p10_putnumber(46, signals[signal_index] % 60 / 10, 0);
+          p10_putnumber(56, signals[signal_index] % 10, 0);
+          p10_putrect(42, 4, 3, 2, 1);
+          p10_putrect(42, 10, 3, 2, 1);
+        }
+      }
+
+      //view Секундамер
+      else if (program == PROGRAM_STOPWATCH && mode == 0) {
+        show_stopwatch(sw_time);
+      }
+
+      //view Таймер
+      else if (program == PROGRAM_TIMER3 && mode == 0) {
+        show_timer3(t3_time);
+      }
+      else if (program == PROGRAM_TIMER3 && mode >= 3) {
+        show_timer3_setup(t3_time, t3_start_time, mode, subsecond >= 7 && blink_freeze == 0);
+      }
+
+      p10_flip();
+    }
+
+  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -2042,6 +2559,7 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 //  ST7789_Init();
 
@@ -2058,7 +2576,8 @@ int main(void)
 //  main_loop_stopwatch();
 //  main_loop_clock();
 //  main_loop_sound();
-  main_loop_v4();
+//  main_loop_v4();
+  main_loop_v5();
 
   while (0)
   {
@@ -2314,6 +2833,54 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_IC_InitTypeDef sConfigIC = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 327;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_IC_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 0;
+  if (HAL_TIM_IC_ConfigChannel(&htim3, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -2388,6 +2955,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : DS3231_SQW_Pin */
+  GPIO_InitStruct.Pin = DS3231_SQW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(DS3231_SQW_GPIO_Port, &GPIO_InitStruct);
 
 }
 

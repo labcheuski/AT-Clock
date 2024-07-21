@@ -90,6 +90,10 @@ void Error_Handler(void);
 #define BUTTON_GPIO_Port GPIOA
 #define LED2_Pin GPIO_PIN_3
 #define LED2_GPIO_Port GPIOB
+#define DS3231_32K_Pin GPIO_PIN_4
+#define DS3231_32K_GPIO_Port GPIOB
+#define DS3231_SQW_Pin GPIO_PIN_5
+#define DS3231_SQW_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
