@@ -35,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUTTON_RANGE 5
+#define BUTTON_RANGE 2
 #define BUTTON_REPEAT_DELAY 200
 #define BUTTON_REPEAT_PERIOD 20
 #define MODE_BRIGHTNESS 0
@@ -311,6 +311,106 @@ uint8_t p10_timer3_setup[P10_BUF_SIZE] = {
     0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
 };
 
+uint8_t p10_stopwatch_sound0[P10_BUF_SIZE] = {
+    0b11100111, 0b00100101, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10100101, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10100101, 0b01000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01100111, 0b00011101, 0b10000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10000101, 0b01000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10000101, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b11100111, 0b00011001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001011, 0b11011111,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b00000100,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b00000100,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01111011, 0b11100100,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b00000100,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b00000100,
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b01001011, 0b11100100,
+};
+
+uint8_t p10_stopwatch_sound1[P10_BUF_SIZE] = {
+    0b11100111, 0b00100101, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10100101, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10100101, 0b01000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01100111, 0b00011101, 0b10000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10000101, 0b01000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00010100, 0b10000101, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b11100111, 0b00011001, 0b00010000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001111, 0b00111011, 0b11101000,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b01000000, 0b10001000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b01000000, 0b10001000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001111, 0b01000000, 0b10001110,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b01000000, 0b10001001,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b01000000, 0b10001001,
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001111, 0b00111000, 0b10001110,
+};
+
+uint8_t p10_stopwatch_start0[P10_BUF_SIZE] = {
+    0b01110111, 0b11000110, 0b11100111, 0b11000001, 0b11100110, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00001010, 0b10010001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b10010001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b11100001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00011110, 0b10000001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b10000001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b01110001, 0b00010010, 0b10000001, 0b00000001, 0b00100110, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b01001000, 0b11010101, 0b00011011, 0b11101000, 0b10100110,
+    0b11111000, 0b00000000, 0b00000000, 0b01001001, 0b01010101, 0b00101000, 0b10001000, 0b10101001,
+    0b00000000, 0b00000000, 0b00000000, 0b01001010, 0b01010101, 0b01001000, 0b10001000, 0b10101001,
+    0b00000000, 0b00000000, 0b00000000, 0b01111010, 0b01001110, 0b01001000, 0b10001001, 0b10111001,
+    0b11111000, 0b00000000, 0b00000000, 0b01001011, 0b11010101, 0b01111000, 0b10001010, 0b10101001,
+    0b01110000, 0b00000000, 0b00000000, 0b01001010, 0b01010101, 0b01001000, 0b10001100, 0b10101001,
+    0b00100000, 0b00000000, 0b00000000, 0b01001010, 0b01010101, 0b01001000, 0b10001000, 0b10100110,
+};
+
+uint8_t p10_stopwatch_start1[P10_BUF_SIZE] = {
+    0b01110111, 0b11000110, 0b11100111, 0b11000001, 0b11100110, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00001010, 0b10010001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b10010001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b11100001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00011110, 0b10000001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b10000001, 0b00010010, 0b10000001, 0b00000001, 0b00101001, 0b00000000, 0b00000000, 0b00000000,
+    0b01110001, 0b00010010, 0b10000001, 0b00000001, 0b00100110, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b01100111, 0b11010101, 0b00011011, 0b11101000, 0b10100110,
+    0b11111000, 0b00000000, 0b00000000, 0b10010001, 0b00010101, 0b00101000, 0b10001000, 0b10101001,
+    0b00000000, 0b00000000, 0b00000000, 0b10010001, 0b00010101, 0b01001000, 0b10001000, 0b10101001,
+    0b00000000, 0b00000000, 0b00000000, 0b10010001, 0b00001110, 0b01001000, 0b10001001, 0b10111001,
+    0b11111000, 0b00000000, 0b00000000, 0b10010001, 0b00010101, 0b01111000, 0b10001010, 0b10101001,
+    0b01110000, 0b00000000, 0b00000000, 0b10010001, 0b00010101, 0b01001000, 0b10001100, 0b10101001,
+    0b00100000, 0b00000000, 0b00000000, 0b01100001, 0b00010101, 0b01001000, 0b10001000, 0b10100110,
+};
+
+uint8_t p10_stopwatch_precision[P10_BUF_SIZE] = {
+    0b11111001, 0b10010010, 0b10010011, 0b00011101, 0b11110100, 0b00000000, 0b00000000, 0b00000000,
+    0b00100010, 0b01010010, 0b10010100, 0b10100000, 0b01000100, 0b00000000, 0b00000000, 0b00000000,
+    0b00100010, 0b01010010, 0b10010100, 0b10100000, 0b01000100, 0b00000000, 0b00000000, 0b00000000,
+    0b00100010, 0b01001110, 0b11110100, 0b10100000, 0b01000111, 0b00000000, 0b00000000, 0b00000000,
+    0b00100010, 0b01000010, 0b10010100, 0b10100000, 0b01000100, 0b10000000, 0b00000000, 0b00000000,
+    0b00100010, 0b01000010, 0b10010100, 0b10100000, 0b01000100, 0b10000000, 0b00000000, 0b00000000,
+    0b00100001, 0b10000010, 0b10010011, 0b00011100, 0b01000111, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+};
+
 uint8_t p10_sprite1[6] = {
     0b00110000,
     0b01001000,
@@ -546,157 +646,6 @@ void p10_zero()
   p10_putrect(19, 4, 3, 2, 1);
   p10_putrect(19, 10, 3, 2, 1);
   p10_putrect(42, 14, 3, 2, 1);
-}
-
-void main_loop_stopwatch()
-{
-  uint8_t is_setting = 0;
-  uint8_t subseconds = 0;
-
-  uint8_t Buf[8];
-  uint8_t last = 0;
-
-  int button_mode = -BUTTON_RANGE;
-  int button_up = -BUTTON_RANGE;
-  int button_down = -BUTTON_RANGE;
-  int button_mode_pressed = 0;
-  int button_up_pressed = 0;
-  int button_down_pressed = 0;
-
-  uint8_t is_started = 0;
-  uint8_t is_stopped = 0;
-  p10_zero();
-
-  int loop_cnt = 0;
-  int last_loop_cnt = 0;
-  int last_subseconds = 0;
-  while (1) {
-    //Get Time
-    Buf[0] = 0;
-    HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 1, 1000);
-    HAL_Delay(10); //каб не міргаў
-    HAL_I2C_Master_Receive(&hi2c1, DEV_ADDR, (uint8_t*) Buf, 3, (uint32_t)1000);
-
-    loop_cnt++;
-    if (last != Buf[0]) {
-      last = Buf[0];
-
-      last_loop_cnt = loop_cnt;
-      loop_cnt = 0;
-
-      if (is_started && !is_stopped) {
-        if (Buf[1] >> 4 > 0) p10_putnumber(0, Buf[1] >> 4, 0);
-        p10_putnumber(10, Buf[1] & 0x0F, 0);
-        p10_putnumber(23, Buf[0] >> 4 & 0x0F, 0);
-        p10_putnumber(33, Buf[0] & 0x0F, 0);
-      }
-    }
-
-    if (is_started && !is_stopped) {
-      if (loop_cnt >= last_loop_cnt) {
-        subseconds = 9;
-      } else {
-        subseconds = loop_cnt * 10 / last_loop_cnt % 10;
-      }
-
-      if (subseconds != last_subseconds) {
-        p10_putnumber(46, subseconds, 0);
-        last_subseconds = subseconds;
-      }
-    }
-
-    HAL_Delay(10);
-    //HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin));
-
-    //Фільтр кнопак
-    if (!HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin)) {
-      if (button_mode < BUTTON_RANGE) button_mode++;
-      if (button_mode == 0) {
-        button_mode_pressed = 1;
-        button_mode = BUTTON_RANGE;
-      }
-    } else {
-      if (button_mode > -BUTTON_RANGE) button_mode--;
-      if (button_mode == 0) button_mode = -BUTTON_RANGE;
-    }
-    if (!HAL_GPIO_ReadPin(BUT_UP_GPIO_Port, BUT_UP_Pin)) {
-      if (button_up < BUTTON_RANGE) button_up++;
-      if (button_up == 0) {
-        button_up_pressed = 1;
-        button_up = BUTTON_RANGE;
-      }
-    } else {
-      if (button_up > -BUTTON_RANGE) button_up--;
-      if (button_up == 0) button_up = -BUTTON_RANGE;
-    }
-    if (!HAL_GPIO_ReadPin(BUT_DOWN_GPIO_Port, BUT_DOWN_Pin)) {
-      if (button_down < BUTTON_RANGE) button_down++;
-      if (button_down == 0) {
-        button_down_pressed = 1;
-        button_down = BUTTON_RANGE;
-      }
-    } else {
-      if (button_down > -BUTTON_RANGE) button_down--;
-      if (button_down == 0) button_down = -BUTTON_RANGE;
-    }
-
-    if (button_mode_pressed) {
-      button_mode_pressed = 0;
-
-      if (!is_started) {
-        is_setting = is_setting ? 0 : 1;
-        if (is_setting) {
-          p10_putrect(0, 0, 64, 16, 0);
-          p10_putnumber(46, brightness[brightness_index] / 10 % 10, 0);
-          p10_putnumber(56, brightness[brightness_index] % 10, 0);
-        } else {
-          p10_zero();
-        }
-      }
-    }
-
-    if (button_up_pressed) {
-      button_up_pressed = 0;
-
-      if (is_setting) {
-        brightness_index = MIN(brightness_index + 1, sizeof(brightness));
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, brightness[brightness_index]);
-        p10_putrect(0, 0, 64, 16, 0);
-        p10_putnumber(46, brightness[brightness_index] / 10 % 10, 0);
-        p10_putnumber(56, brightness[brightness_index] % 10, 0);
-      } else if (is_stopped) {
-        //reset
-        is_started = 0;
-        is_stopped = 0;
-        p10_zero();
-      } else if (!is_started) {
-        //start
-        is_started = 1;
-        Buf[0] = 0;
-        Buf[1] = 0;
-        Buf[2] = 0;
-        Buf[3] = 0;
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 4, 1000);
-        last_loop_cnt = 45;
-        loop_cnt = 0;
-        last = 0;
-      }
-    }
-
-    if (button_down_pressed) {
-      button_down_pressed = 0;
-
-      if (is_setting) {
-        brightness_index = MAX(brightness_index - 1, 0);
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, brightness[brightness_index]);
-        p10_putrect(0, 0, 64, 16, 0);
-        p10_putnumber(46, brightness[brightness_index] / 10 % 10, 0);
-        p10_putnumber(56, brightness[brightness_index] % 10, 0);
-      } else if (is_started && !is_stopped) {
-        is_stopped = 1;
-      }
-    }
-  }
 }
 
 int button_mode = -BUTTON_RANGE;
@@ -1074,6 +1023,9 @@ void main_loop_v5() {
   int brightness_freeze = 0;
   int blink_freeze = 0;
   int interval_second = 0;
+  int sw_start = 0;
+  int sw_precision = 2;
+  int sw_sound = 0;
 
 //  p10_putscreen(p10_start);
 //  p10_flip();
@@ -1087,6 +1039,10 @@ void main_loop_v5() {
   HAL_I2C_Master_Receive(&hi2c1, DEV_ADDR, buf, 2, 1000);
   program = buf[1] & 0b00000111;
   if (program >= PROGRAM_CNT) program = PROGRAM_CLOCK;
+  sw_start = buf[1] >> 3 & 0b00000001;
+  sw_precision = buf[1] >> 4 & 0b00000011;
+  if (sw_precision > 2) sw_precision = 2;
+  sw_sound = buf[1] >> 6 & 0b00000001;
 
   while (1) {
     int second_changed = 0;
@@ -1206,7 +1162,7 @@ void main_loop_v5() {
         mode = 0;
       }
       if (program == PROGRAM_CLOCK && mode > 5) mode = 0;
-      if (program == PROGRAM_STOPWATCH && mode > 2) mode = 0;
+      if (program == PROGRAM_STOPWATCH && mode > 5) mode = 0;
       if (program == PROGRAM_TIMER3 && mode > 5) mode = 0;
       if (program == PROGRAM_NUMBERS && mode > 6) mode = 0;
       refresh = 1;
@@ -1217,7 +1173,7 @@ void main_loop_v5() {
         out2[0] = 0x04;
         out2[1] = 0;
         out2[2] = 1;
-        out2[3] = program;
+        out2[3] = program | sw_start << 3 | sw_precision << 4 | sw_sound << 6;
         HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, out2, 4, 1000);
         HAL_Delay(20);
       }
@@ -1278,6 +1234,40 @@ void main_loop_v5() {
       continue;
     }
 
+    //наладка спосабу старта секундамера
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+        && (program == PROGRAM_STOPWATCH && mode == 3))
+    {
+      sw_start = sw_start ? 0 : 1;
+      mode_back = 1;
+      refresh = 1;
+    }
+
+    //наладка дакладнасці секундамера
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+        && (program == PROGRAM_STOPWATCH && mode == 4))
+    {
+      if (button_up_pressed || button_up_repeated) {
+        sw_precision = sw_precision + 1;
+        if (sw_precision > 2) sw_precision = 0;
+      }
+      if (button_down_pressed || button_down_repeated) {
+        sw_precision = sw_precision - 1;
+        if (sw_precision < 0) sw_precision = 2;
+      }
+      mode_back = 1;
+      refresh = 1;
+    }
+
+    //наладка гуку секундамера
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+        && (program == PROGRAM_STOPWATCH && mode == 5))
+    {
+      sw_sound = sw_sound ? 0 : 1;
+      mode_back = 1;
+      refresh = 1;
+    }
+
     //Адлік секундамера
     if (subsecond_changed && program == PROGRAM_STOPWATCH && mode == 0) {
       if (sw_state == SW_STARTED) {
@@ -1287,9 +1277,8 @@ void main_loop_v5() {
     }
 
     //Секундамер - старт (аўта зброс у спыненным стане)
-//    if (button_up_pressed && program == PROGRAM_STOPWATCH && mode == 0) {
-    //Бізон. Старт па адрыву нагі
-    if (button_up_unpressed && program == PROGRAM_STOPWATCH && mode == 0) {
+    if ((button_up_pressed && program == PROGRAM_STOPWATCH && mode == 0 && sw_start == 0)
+        || (button_up_unpressed && program == PROGRAM_STOPWATCH && mode == 0 && sw_start == 1)) {
       if (sw_state == SW_READY || sw_state == SW_STOPPED) {
         uint8_t Out4[4];
         memset(Out4, 0, 4);
@@ -1298,7 +1287,7 @@ void main_loop_v5() {
         last_second = 0;
         loop_cnt = 0;
         sw_state = SW_STARTED;
-        buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
+        if (sw_sound) buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
         continue;
       }
     }
@@ -1315,7 +1304,7 @@ void main_loop_v5() {
       sw_state = SW_STOPPED;
       sw_time = second * 100 + MIN(99, loop_cnt * 100 / MAX(1, last_loop_cnt));
       refresh = 1;
-      buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+      if (sw_sound) buzzer(BUZZER_PRESCALER2, last_loop_cnt);
     }
 
     //Адлік таймера
@@ -1452,10 +1441,10 @@ void main_loop_v5() {
 
       //view Секундамер
       else if (program == PROGRAM_STOPWATCH && mode == 0) {
-        if (sw_time >= 60*60*100) {
+        if (sw_time >= 60*60*100 || sw_precision == 0) {
           show_time(sw_time);
         } else {
-          if (sw_state == SW_STOPPED) {
+          if (sw_state == SW_STOPPED && sw_precision == 2) {
             show_time_00(sw_time);
           } else {
             show_time_0(sw_time);
@@ -1469,6 +1458,43 @@ void main_loop_v5() {
       }
       else if (program == PROGRAM_TIMER3 && mode >= 3) {
         show_timer3_setup(t3_time, t3_start_time, mode, subsecond >= 7 && blink_freeze == 0);
+      }
+
+      //view наладка спосабу старта секундамера
+      else if (program == PROGRAM_STOPWATCH && mode == 3) {
+        if (sw_start == 0) p10_putscreen(p10_stopwatch_start0);
+        else p10_putscreen(p10_stopwatch_start1);
+      }
+
+      //view наладка дакладнасці секундамера
+      else if (program == PROGRAM_STOPWATCH && mode == 4) {
+        p10_putscreen(p10_stopwatch_precision);
+        switch (sw_precision) {
+        case 0:
+          p10_putnumber4x7(48, 9, 1, 0);
+          p10_setxy(53, 15, 1);
+          p10_putnumber4x7(55, 9, 0, 0);
+          p10_putnumber4x7(60, 9, 0, 0);
+          break;
+        case 1:
+          p10_putnumber4x7(48, 9, 0, 0);
+          p10_setxy(53, 15, 1);
+          p10_putnumber4x7(55, 9, 1, 0);
+          p10_putnumber4x7(60, 9, 0, 0);
+          break;
+        case 2:
+          p10_putnumber4x7(48, 9, 0, 0);
+          p10_setxy(53, 15, 1);
+          p10_putnumber4x7(55, 9, 0, 0);
+          p10_putnumber4x7(60, 9, 1, 0);
+          break;
+        }
+      }
+
+      //view наладка гуку секундамера
+      else if (program == PROGRAM_STOPWATCH && mode == 5) {
+        if (sw_sound == 0) p10_putscreen(p10_stopwatch_sound0);
+        else p10_putscreen(p10_stopwatch_sound1);
       }
 
       p10_flip();
