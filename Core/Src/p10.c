@@ -403,6 +403,16 @@ void p10_putint(int x, int value, uint8_t invers) {
   }
 }
 
+int p10_intwidth(int value) {
+  int result = 0;
+  if (value < 0) result += 10;
+  do {
+    result += 10;
+    value /= 10;
+  } while (value);
+  return result;
+}
+
 void p10_putnumber4x7(int x, int y, uint8_t n, uint8_t invers) {
   invers = invers ? 0xFF : 0x00;
   for (int h = 0; h < 7; h++) {
