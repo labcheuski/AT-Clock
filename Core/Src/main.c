@@ -1154,9 +1154,20 @@ void main_loop() {
       if (blink_freeze > 0) blink_freeze--;
       refresh = 1;
 
-      if (mode == 0) {
-        if (t3_time == 0) {
-          buzzer(BUZZER_PRESCALER1, last_loop_cnt);
+      //Гук таймера
+      if (mode == 0 && second_changed) {
+        if (signals[signal_index] > 0) {
+          interval_second = t3_time / 100 % signals[signal_index];
+          if (interval_second < 0) inteval_second += signals[signal_index];
+          if (interval_second == 0) {
+            buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+          } else if (interval_second + 4 - signals[signal_index] >= 0 && signals[signal_index] >= 10) {
+            buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
+          }
+        } else {
+          if (t3_time == 0) {
+            buzzer(BUZZER_PRESCALER1, last_loop_cnt);
+          }
         }
       }
     }
