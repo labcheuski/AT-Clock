@@ -1158,16 +1158,15 @@ void main_loop() {
       if (mode == 0 && second_changed) {
         if (signals[signal_index] > 0) {
           interval_second = t3_time / 100 % signals[signal_index];
-          if (interval_second < 0) inteval_second += signals[signal_index];
-          if (interval_second == 0) {
-            buzzer(BUZZER_PRESCALER2, last_loop_cnt);
-          } else if (interval_second + 4 - signals[signal_index] >= 0 && signals[signal_index] >= 10) {
-            buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
-          }
+          if (interval_second > 0) interval_second -= signals[signal_index];
         } else {
-          if (t3_time == 0) {
-            buzzer(BUZZER_PRESCALER1, last_loop_cnt);
-          }
+          interval_second = t3_time / 100;
+        }
+
+        if (interval_second == 0) {
+          buzzer(BUZZER_PRESCALER2, last_loop_cnt);
+        } else if (-4 <= interval_second && interval_second <= -1 && signals[signal_index] != 5) {
+          buzzer(BUZZER_PRESCALER1, last_loop_cnt / 3);
         }
       }
     }
