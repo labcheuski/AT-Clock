@@ -60,16 +60,26 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED1_Pin GPIO_PIN_13
-#define LED1_GPIO_Port GPIOC
+#define LED13_Pin GPIO_PIN_13
+#define LED13_GPIO_Port GPIOC
 #define BUZZER_Pin GPIO_PIN_1
 #define BUZZER_GPIO_Port GPIOA
 #define ST7789_DC_Pin GPIO_PIN_3
 #define ST7789_DC_GPIO_Port GPIOA
+#define RADIO_D0_Pin GPIO_PIN_4
+#define RADIO_D0_GPIO_Port GPIOA
+#define RADIO_D1_Pin GPIO_PIN_5
+#define RADIO_D1_GPIO_Port GPIOA
+#define RADIO_D2_Pin GPIO_PIN_6
+#define RADIO_D2_GPIO_Port GPIOA
+#define RADIO_D3_Pin GPIO_PIN_7
+#define RADIO_D3_GPIO_Port GPIOA
 #define ST7789_RST_Pin GPIO_PIN_0
 #define ST7789_RST_GPIO_Port GPIOB
 #define BUT_MODE_Pin GPIO_PIN_1
 #define BUT_MODE_GPIO_Port GPIOB
+#define LED1_Pin GPIO_PIN_2
+#define LED1_GPIO_Port GPIOB
 #define BUT_DOWN_Pin GPIO_PIN_10
 #define BUT_DOWN_GPIO_Port GPIOB
 #define BUT_UP_Pin GPIO_PIN_11

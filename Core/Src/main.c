@@ -64,7 +64,8 @@
 #define PROGRAM_STOPWATCH 1
 #define PROGRAM_TIMER3 2
 #define PROGRAM_NUMBERS 3
-#define PROGRAM_CNT 4
+#define PROGRAM_COUNT 4
+#define PROGRAM_CNT 5
 
 #define TIMER3_START -3*60*100
 
@@ -271,6 +272,26 @@ uint8_t p10_program_numbers[P10_BUF_SIZE] = {
     0b00100000, 0b00000001, 0b00100110, 0b00001001, 0b00110010, 0b00101111, 0b01000010, 0b01010001,
 };
 
+uint8_t p10_program_count[P10_BUF_SIZE] = {
+    0b11100111, 0b10101010, 0b10001010, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10010100, 0b00101010, 0b10001011, 0b01100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10010100, 0b00101010, 0b10001010, 0b10100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b11100111, 0b10011100, 0b10011010, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000100, 0b00101010, 0b10101010, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000100, 0b00101010, 0b11001010, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b10000111, 0b10101010, 0b10001010, 0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000111, 0b01001011, 0b11011111,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b01001010, 0b00000100,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b01001010, 0b00000100,
+    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b00111011, 0b11000100,
+    0b11111000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b00001010, 0b00000100,
+    0b01110000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00001000, 0b00001010, 0b00000100,
+    0b00100000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000111, 0b00001011, 0b11000100,
+};
+
 uint8_t p10_signal[P10_BUF_SIZE] = {
     0b01110100, 0b10111101, 0b00100011, 0b00011000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
     0b10000100, 0b10100001, 0b00100101, 0b00101000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -444,198 +465,6 @@ void p10_test_text()
   p10_putrect(0, 0, 64, 16, 0);
 }
 
-void main_loop_clock()
-{
-  uint8_t Buf[8];
-  uint8_t last = 0;
-
-  int button_mode = -BUTTON_RANGE;
-  int button_up = -BUTTON_RANGE;
-  int button_down = -BUTTON_RANGE;
-  int button_mode_pressed = 0;
-  int button_up_pressed = 0;
-  int button_down_pressed = 0;
-
-  int mode = 0;
-
-  p10_putrect(0, 0, 64, 16, 0);
-
-  int loop_cnt = 0;
-  int loop_half = 0;
-  while (1) {
-    //Get Time
-    Buf[0] = 0;
-    HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 1, 1000);
-    HAL_Delay(10); //каб не міргаў
-    HAL_I2C_Master_Receive(&hi2c1, DEV_ADDR, (uint8_t*) Buf, 3, (uint32_t)1000);
-
-    loop_cnt++;
-    if (last != Buf[0]) {
-      last = Buf[0];
-
-      loop_half = loop_cnt / 2;
-      loop_cnt = 0;
-
-      p10_putnumber(0,  Buf[2] >> 4, 0);
-      p10_putnumber(10, Buf[2] & 0x0F, 0);
-      p10_putnumber(23, Buf[1] >> 4, 0);
-      p10_putnumber(33, Buf[1] & 0x0F, 0);
-      p10_putnumber(46, Buf[0] >> 4 & 0x0F, 0);
-      p10_putnumber(56, Buf[0] & 0x0F, 0);
-
-      p10_putrect(19, 4, 3, 2, 1);
-      p10_putrect(19, 10, 3, 2, 1);
-      p10_putrect(42, 4, 3, 2, 1);
-      p10_putrect(42, 10, 3, 2, 1);
-
-#if (BUZZER_ON)
-        //Buzzer
-  //      if (Buf[0] & 0x0F > 0x55) {
-        if ((Buf[0] & 0x0F) > 0x05) {
-          __HAL_TIM_SET_PRESCALER(&htim2, 79);
-          HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-          HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-        }
-  //      if (Buf[0] == 0) {
-        if ((Buf[0] & 0x0F) == 0) {
-          __HAL_TIM_SET_PRESCALER(&htim2, 75);
-          HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-          HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-        }
-#endif
-    }
-
-#if (BUZZER_ON)
-      if (loop_cnt == loop_half >> 1) {
-        //      if (Buf[0] != 0) {
-        if ((Buf[0] & 0x0F) != 0) {
-          HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2);
-          HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_RESET);
-          HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-        }
-      }
-#endif
-
-    if (loop_cnt == loop_half) {
-
-      //Мірганне - настройка часу
-      switch (mode) {
-      case MODE_HOUR:
-        p10_putrect(0, 0, 18, 16, 0);
-        break;
-      case MODE_MINUTE:
-        p10_putrect(23, 0, 18, 16, 0);
-        break;
-      case MODE_SECOND:
-        p10_putrect(46, 0, 18, 16, 0);
-        break;
-      }
-    }
-
-    HAL_Delay(10);
-    //HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin));
-
-    //Фільтр кнопак
-    if (!HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin)) {
-      if (button_mode < BUTTON_RANGE) button_mode++;
-      if (button_mode == 0) {
-        button_mode_pressed = 1;
-        button_mode = BUTTON_RANGE;
-      }
-    } else {
-      if (button_mode > -BUTTON_RANGE) button_mode--;
-      if (button_mode == 0) button_mode = -BUTTON_RANGE;
-    }
-    if (!HAL_GPIO_ReadPin(BUT_UP_GPIO_Port, BUT_UP_Pin)) {
-      if (button_up < BUTTON_RANGE) button_up++;
-      if (button_up == 0) {
-        button_up_pressed = 1;
-        button_up = BUTTON_RANGE;
-      }
-    } else {
-      if (button_up > -BUTTON_RANGE) button_up--;
-      if (button_up == 0) button_up = -BUTTON_RANGE;
-    }
-    if (!HAL_GPIO_ReadPin(BUT_DOWN_GPIO_Port, BUT_DOWN_Pin)) {
-      if (button_down < BUTTON_RANGE) button_down++;
-      if (button_down == 0) {
-        button_down_pressed = 1;
-        button_down = BUTTON_RANGE;
-      }
-    } else {
-      if (button_down > -BUTTON_RANGE) button_down--;
-      if (button_down == 0) button_down = -BUTTON_RANGE;
-    }
-
-    //Апрацоўка націску кнопак
-    if (button_mode_pressed) {
-//      p10_test_text();
-      button_mode_pressed = 0;
-      mode = (mode + 1) % MODE_CNT;
-    }
-
-    if (button_up_pressed) {
-      button_up_pressed = 0;
-
-      switch (mode) {
-      case MODE_BRIGHTNESS:
-        brightness_index = MIN(brightness_index + 1, BRIGHTNESS_STEPS-1);
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, brightness[brightness_index]);
-        p10_putrect(0, 0, 64, 16, 0);
-        p10_putnumber(46, brightness[brightness_index] / 10 % 10, 0);
-        p10_putnumber(56, brightness[brightness_index] % 10, 0);
-        HAL_Delay(1000);
-        break;
-      case MODE_HOUR:
-        Buf[0] = 2;
-        Buf[1] = IntToBCD((BCDToInt(Buf[2]) + 1) % 24);
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 2, 1000);
-        break;
-      case MODE_MINUTE:
-        Buf[0] = 1;
-        Buf[1] = IntToBCD((BCDToInt(Buf[1]) + 1) % 60);
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 2, 1000);
-        break;
-      case MODE_SECOND:
-        Buf[0] = 0;
-        Buf[1] = 0;
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 2, 1000);
-        break;
-      }
-    }
-
-    if (button_down_pressed) {
-      button_down_pressed = 0;
-
-      switch (mode) {
-      case MODE_BRIGHTNESS:
-        brightness_index = MAX(brightness_index - 1, 0);
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, brightness[brightness_index]);
-        p10_putrect(0, 0, 64, 16, 0);
-        p10_putnumber(46, brightness[brightness_index] / 10 % 10, 0);
-        p10_putnumber(56, brightness[brightness_index] % 10, 0);
-        HAL_Delay(1000);
-        break;
-      case MODE_HOUR:
-        Buf[0] = 2;
-        Buf[1] = Buf[2] ? IntToBCD(BCDToInt(Buf[2]) - 1) : 0x23;
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 2, 1000);
-        break;
-      case MODE_MINUTE:
-        Buf[0] = 1;
-        Buf[1] = Buf[1] ? IntToBCD(BCDToInt(Buf[1]) - 1) : 0x59;
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 2, 1000);
-        break;
-      case MODE_SECOND:
-        Buf[1] = ((Buf[0] & 0xF0) + 0x10) % 0x60;
-        Buf[0] = 0;
-        HAL_I2C_Master_Transmit(&hi2c1, DEV_ADDR, Buf, 2, 1000);
-        break;
-      }
-    }
-  }
-}
-
 void p10_zero()
 {
   p10_putrect(0, 0, 64, 16, 0);
@@ -651,9 +480,11 @@ void p10_zero()
 int button_mode = -BUTTON_RANGE;
 int button_up = -BUTTON_RANGE;
 int button_down = -BUTTON_RANGE;
+int button_radio4 = -BUTTON_RANGE;
 int button_mode_repeat = BUTTON_REPEAT_DELAY;
 int button_up_repeat = BUTTON_REPEAT_DELAY;
 int button_down_repeat = BUTTON_REPEAT_DELAY;
+int button_radio4_repeat = BUTTON_REPEAT_DELAY;
 int button_mode_pressed = 0;
 int button_mode_unpressed = 0;
 int button_mode_repeated = 0;
@@ -666,6 +497,10 @@ int button_down_pressed = 0;
 int button_down_unpressed = 0;
 int button_down_repeated = 0;
 int button_down_hold = 0;
+int button_radio4_pressed = 0;
+int button_radio4_unpressed = 0;
+int button_radio4_repeated = 0;
+int button_radio4_hold = 0;
 
 void button_filter() {
   //Фільтр кнопак
@@ -678,8 +513,13 @@ void button_filter() {
   button_down_pressed = 0;
   button_down_unpressed = 0;
   button_down_repeated = 0;
+  button_radio4_pressed = 0;
+  button_radio4_unpressed = 0;
+  button_radio4_repeated = 0;
 
-  if (!HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin)) {
+  if (!HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin)
+      || HAL_GPIO_ReadPin(RADIO_D0_GPIO_Port, RADIO_D0_Pin)
+  ) {
     if (button_mode < BUTTON_RANGE) button_mode++;
     if (button_mode == 0) {
       button_mode_pressed = 1;
@@ -702,7 +542,9 @@ void button_filter() {
     }
   }
 
-  if (!HAL_GPIO_ReadPin(BUT_UP_GPIO_Port, BUT_UP_Pin)) {
+  if (!HAL_GPIO_ReadPin(BUT_UP_GPIO_Port, BUT_UP_Pin)
+      || HAL_GPIO_ReadPin(RADIO_D1_GPIO_Port, RADIO_D1_Pin)
+  ) {
     if (button_up < BUTTON_RANGE) button_up++;
     if (button_up == 0) {
       button_up_pressed = 1;
@@ -725,7 +567,9 @@ void button_filter() {
     }
   }
 
-  if (!HAL_GPIO_ReadPin(BUT_DOWN_GPIO_Port, BUT_DOWN_Pin)) {
+  if (!HAL_GPIO_ReadPin(BUT_DOWN_GPIO_Port, BUT_DOWN_Pin)
+      || HAL_GPIO_ReadPin(RADIO_D2_GPIO_Port, RADIO_D2_Pin)
+  ) {
     if (button_down < BUTTON_RANGE) button_down++;
     if (button_down == 0) {
       button_down_pressed = 1;
@@ -747,51 +591,28 @@ void button_filter() {
       button_down_repeat = BUTTON_REPEAT_DELAY;
     }
   }
-}
 
-void main_loop_sound()
-{
-  p10_putrect(0, 0, 64, 16, 0);
-
-  int prescaler = 159;
-  int last = 0;
-  while (1) {
-    HAL_Delay(10);
-
-    if (last != prescaler) {
-      last = prescaler;
-      p10_clrscr();
-//      p10_putint(64, 320000 / (prescaler+1));
-      p10_putint(64, prescaler, 0);
-      p10_flip();
+  if (HAL_GPIO_ReadPin(RADIO_D3_GPIO_Port, RADIO_D3_Pin)
+  ) {
+    if (button_radio4 < BUTTON_RANGE) button_radio4++;
+    if (button_radio4 == 0) {
+      button_radio4_pressed = 1;
+      button_radio4_hold = 1;
+      button_radio4 = BUTTON_RANGE;
     }
-
-    //Фільтр кнопак
-    button_filter();
-
-    //Апрацоўка націску кнопак
-    if (button_mode_pressed) {
-      button_mode_pressed = 0;
-      __HAL_TIM_SET_PRESCALER(&htim2, prescaler);
-      HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+    if (button_radio4 == BUTTON_RANGE) {
+      if (button_radio4_repeat-- <= 0) {
+        button_radio4_repeated = 1;
+        button_radio4_repeat = BUTTON_REPEAT_PERIOD;
+      }
     }
-    if (button_mode_unpressed) {
-      button_mode_unpressed = 0;
-      HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2);
-      HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_RESET);
-      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-    }
-
-    if (button_up_pressed || button_up_repeated) {
-      button_up_pressed = 0;
-      button_up_repeated = 0;
-      prescaler++;
-    }
-    if (button_down_pressed || button_down_repeated) {
-      button_down_pressed = 0;
-      button_down_repeated = 0;
-      prescaler--;
+  } else {
+    if (button_radio4 > -BUTTON_RANGE) button_radio4--;
+    if (button_radio4 == 0) {
+      button_radio4_unpressed = 1;
+      button_radio4_hold = 0;
+      button_radio4 = -BUTTON_RANGE;
+      button_radio4_repeat = BUTTON_REPEAT_DELAY;
     }
   }
 }
@@ -979,6 +800,14 @@ void show_numbers(uint8_t Buf[], int number, int trafic) {
   }
 }
 
+void show_count(int left, int right) {
+  p10_clrscr();
+  p10_putint(29, left, 0);
+  p10_putint(34 + p10_intwidth(right), right, 0);
+  p10_putrect(31, 4, 3, 2, 1);
+  p10_putrect(31, 10, 3, 2, 1);
+}
+
 int buzzer_timer = 0;
 void buzzer(int prescaler, int duration) {
   __HAL_TIM_SET_PRESCALER(&htim2, prescaler);
@@ -1003,7 +832,7 @@ void asd(int v1, int v2) {
 
 uint8_t TimeBuf[4];
 
-void main_loop_v5() {
+void main_loop() {
   uint8_t Time[3];
   uint8_t last_second = 0xFF;
   int loop_cnt = 0;
@@ -1026,6 +855,10 @@ void main_loop_v5() {
   int sw_start = 0;
   int sw_precision = 2;
   int sw_sound = 0;
+  int count_left = 0;
+  int count_right = 0;
+  int count_left_changed = 0;
+  int count_right_changed = 0;
 
 //  p10_putscreen(p10_start);
 //  p10_flip();
@@ -1134,7 +967,8 @@ void main_loop_v5() {
         && ((program == PROGRAM_CLOCK && mode == 0)
             || (program == PROGRAM_STOPWATCH && mode == 2)
             || (program == PROGRAM_TIMER3 && mode == 2)
-            || (program == PROGRAM_NUMBERS && mode == 3)))
+            || (program == PROGRAM_NUMBERS && mode == 3)
+            || (program == PROGRAM_COUNT && mode == 2)))
     {
       if (button_up_pressed) {
         if (brightness_index < BRIGHTNESS_STEPS - 1) brightness_index++;
@@ -1165,6 +999,7 @@ void main_loop_v5() {
       if (program == PROGRAM_STOPWATCH && mode > 5) mode = 0;
       if (program == PROGRAM_TIMER3 && mode > 5) mode = 0;
       if (program == PROGRAM_NUMBERS && mode > 6) mode = 0;
+      if (program == PROGRAM_COUNT && mode > 2) mode = 0;
       refresh = 1;
 
       if (mode == 0) {
@@ -1361,8 +1196,53 @@ void main_loop_v5() {
         if (number < 0) number = 999;
         refresh = 1;
       }
-      if (button_up_hold && button_down_hold) {
+      if ((button_up_hold && button_down_hold) || button_radio4_repeated) {
         number = 0;
+        refresh = 1;
+      }
+    }
+
+    //Лік гульні
+    if (program == PROGRAM_COUNT && mode == 0)
+    {
+      if (button_up_unpressed) {
+        if (count_left_changed) {
+          count_left_changed = 0;
+        } else {
+          count_left++;
+          refresh = 1;
+        }
+      }
+      if (button_up_repeated && !count_left_changed) {
+        count_left--;
+        count_left_changed = 1;
+        refresh = 1;
+      }
+
+      if (button_down_unpressed) {
+        if (count_right_changed) {
+          count_right_changed = 0;
+        } else {
+          count_right++;
+          refresh = 1;
+        }
+      }
+      if (button_down_repeated && !count_right_changed) {
+        count_right--;
+        count_right_changed = 1;
+        refresh = 1;
+      }
+
+      if (button_up_hold && button_down_hold) {
+        count_left = 0;
+        count_right = 0;
+        count_left_changed = 1;
+        count_right_changed = 1;
+        refresh = 1;
+      }
+      if (button_radio4_repeated) {
+        count_left = 0;
+        count_right = 0;
         refresh = 1;
       }
     }
@@ -1408,7 +1288,8 @@ void main_loop_v5() {
       else if ((program == PROGRAM_CLOCK && mode == 0 && brightness_freeze > 0)
           || (program == PROGRAM_STOPWATCH && mode == 2)
           || (program == PROGRAM_TIMER3 && mode == 2)
-          || (program == PROGRAM_NUMBERS && mode == 3))
+          || (program == PROGRAM_NUMBERS && mode == 3)
+          || (program == PROGRAM_COUNT && mode == 2))
       {
         p10_putscreen(p10_brightness);
         p10_putint(64, brightness[brightness_index] + 1, 0);
@@ -1421,6 +1302,7 @@ void main_loop_v5() {
         case PROGRAM_STOPWATCH: p10_putscreen(p10_program_stopwatch); break;
         case PROGRAM_TIMER3: p10_putscreen(p10_program_timer3); break;
         case PROGRAM_NUMBERS: p10_putscreen(p10_program_numbers); break;
+        case PROGRAM_COUNT: p10_putscreen(p10_program_count); break;
         }
       }
 
@@ -1497,6 +1379,11 @@ void main_loop_v5() {
         else p10_putscreen(p10_stopwatch_sound1);
       }
 
+      //view лік гульні
+      else if (program == PROGRAM_COUNT && mode == 0) {
+        show_count(count_left, count_right);
+      }
+
       p10_flip();
     }
 
@@ -1551,11 +1438,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  main_loop_stopwatch();
-//  main_loop_clock();
-//  main_loop_sound();
-//  main_loop_v4();
-  main_loop_v5();
+  main_loop();
 
   while (0)
   {
@@ -1890,21 +1773,21 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED13_GPIO_Port, LED13_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, ST7789_DC_Pin|P10_A_Pin|P10_B_Pin|P10_L_Pin
                           |P10_OE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ST7789_RST_Pin|LED2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, ST7789_RST_Pin|LED1_Pin|LED2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LED1_Pin */
-  GPIO_InitStruct.Pin = LED1_Pin;
+  /*Configure GPIO pin : LED13_Pin */
+  GPIO_InitStruct.Pin = LED13_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(LED13_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ST7789_DC_Pin P10_A_Pin P10_B_Pin P10_L_Pin
                            P10_OE_Pin */
@@ -1915,8 +1798,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ST7789_RST_Pin LED2_Pin */
-  GPIO_InitStruct.Pin = ST7789_RST_Pin|LED2_Pin;
+  /*Configure GPIO pins : RADIO_D0_Pin RADIO_D1_Pin RADIO_D2_Pin RADIO_D3_Pin */
+  GPIO_InitStruct.Pin = RADIO_D0_Pin|RADIO_D1_Pin|RADIO_D2_Pin|RADIO_D3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : ST7789_RST_Pin LED1_Pin LED2_Pin */
+  GPIO_InitStruct.Pin = ST7789_RST_Pin|LED1_Pin|LED2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

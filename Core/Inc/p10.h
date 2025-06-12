@@ -25,6 +25,7 @@ void p10_tock();
 void p10_putnumber(int x, uint8_t n, uint8_t invers);
 void p10_putnumber4x7(int x, int y, uint8_t n, uint8_t invers);
 void p10_putint(int x, int value, uint8_t invers);
+int p10_intwidth(int value);
 void p10_putint4x7(int x, int y, int value, uint8_t invers);
 void p10_putrect(int x, int y, int w, int h, uint8_t v);
 void p10_invertrect(int x, int y, int w, int h);
