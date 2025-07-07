@@ -1231,14 +1231,16 @@ void main_loop() {
       if (button_up_pressed || button_up_repeated) {
         switch (mode) {
         case 2: t3_start_time += (t3_start_time / 100 % 60 < 59) ? (1*100) : (-59*100); break;
-        case 3: t3_start_time += (t3_start_time / (60*100) % 60 < 59) ? (1*60*100) : (-59*60*100); break;
+        //case 3: t3_start_time += (t3_start_time / (60*100) % 60 < 59) ? (1*60*100) : (-59*60*100); break;
+        case 3: t3_start_time = (t3_start_time + 1*60*100) % (24*60*60*100); break;
         case 4: t3_start_time += (t3_start_time / (60*60*100) % 24 < 23) ? (1*60*60*100) : (-23*60*60*100); break;
         }
       }
       if (button_down_pressed || button_down_repeated) {
         switch (mode) {
         case 2: t3_start_time += (t3_start_time / 100 % 60 > 0) ? (-1*100) : (59*100); break;
-        case 3: t3_start_time += (t3_start_time / (60*100) % 60 > 0) ? (-1*60*100) : (59*60*100); break;
+        //case 3: t3_start_time += (t3_start_time / (60*100) % 60 > 0) ? (-1*60*100) : (59*60*100); break;
+        case 3: t3_start_time += (t3_start_time / (60*100) > 0) ? (-1*60*100) : ((24*60 - 1)*60*100); break;
         case 4: t3_start_time += (t3_start_time / (60*60*100) % 24 > 0) ? (-1*60*60*100) : (23*60*60*100); break;
         }
       }
