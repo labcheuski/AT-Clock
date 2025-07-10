@@ -35,7 +35,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUTTON_RANGE 2
+#define BUTTON_RANGE 2  //Set 5 for old buttons
+#define RADIO_RANGE 5
 #define BUTTON_REPEAT_DELAY 200
 #define BUTTON_REPEAT_PERIOD 20
 #define MODE_BRIGHTNESS 0
@@ -520,11 +521,17 @@ void p10_zero()
 int button_mode = -BUTTON_RANGE;
 int button_up = -BUTTON_RANGE;
 int button_down = -BUTTON_RANGE;
-int button_radio4 = -BUTTON_RANGE;
+int radio_a = -RADIO_RANGE;
+int radio_b = -RADIO_RANGE;
+int radio_c = -RADIO_RANGE;
+int radio_d = -RADIO_RANGE;
 int button_mode_repeat = BUTTON_REPEAT_DELAY;
 int button_up_repeat = BUTTON_REPEAT_DELAY;
 int button_down_repeat = BUTTON_REPEAT_DELAY;
-int button_radio4_repeat = BUTTON_REPEAT_DELAY;
+int radio_a_repeat = BUTTON_REPEAT_DELAY;
+int radio_b_repeat = BUTTON_REPEAT_DELAY;
+int radio_c_repeat = BUTTON_REPEAT_DELAY;
+int radio_d_repeat = BUTTON_REPEAT_DELAY;
 int button_mode_pressed = 0;
 int button_mode_unpressed = 0;
 int button_mode_repeated = 0;
@@ -537,10 +544,22 @@ int button_down_pressed = 0;
 int button_down_unpressed = 0;
 int button_down_repeated = 0;
 int button_down_hold = 0;
-int button_radio4_pressed = 0;
-int button_radio4_unpressed = 0;
-int button_radio4_repeated = 0;
-int button_radio4_hold = 0;
+int radio_a_pressed = 0;
+int radio_a_unpressed = 0;
+int radio_a_repeated = 0;
+int radio_a_hold = 0;
+int radio_b_pressed = 0;
+int radio_b_unpressed = 0;
+int radio_b_repeated = 0;
+int radio_b_hold = 0;
+int radio_c_pressed = 0;
+int radio_c_unpressed = 0;
+int radio_c_repeated = 0;
+int radio_c_hold = 0;
+int radio_d_pressed = 0;
+int radio_d_unpressed = 0;
+int radio_d_repeated = 0;
+int radio_d_hold = 0;
 
 void button_filter() {
   //Фільтр кнопак
@@ -553,13 +572,21 @@ void button_filter() {
   button_down_pressed = 0;
   button_down_unpressed = 0;
   button_down_repeated = 0;
-  button_radio4_pressed = 0;
-  button_radio4_unpressed = 0;
-  button_radio4_repeated = 0;
+  radio_a_pressed = 0;
+  radio_a_unpressed = 0;
+  radio_a_repeated = 0;
+  radio_b_pressed = 0;
+  radio_b_unpressed = 0;
+  radio_b_repeated = 0;
+  radio_c_pressed = 0;
+  radio_c_unpressed = 0;
+  radio_c_repeated = 0;
+  radio_d_pressed = 0;
+  radio_d_unpressed = 0;
+  radio_d_repeated = 0;
 
-  if (!HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin)
-      || HAL_GPIO_ReadPin(RADIO_D0_GPIO_Port, RADIO_D0_Pin)
-  ) {
+  //Button MODE
+  if (!HAL_GPIO_ReadPin(BUT_MODE_GPIO_Port, BUT_MODE_Pin)) {
     if (button_mode < BUTTON_RANGE) button_mode++;
     if (button_mode == 0) {
       button_mode_pressed = 1;
@@ -582,9 +609,8 @@ void button_filter() {
     }
   }
 
-  if (!HAL_GPIO_ReadPin(BUT_UP_GPIO_Port, BUT_UP_Pin)
-      || HAL_GPIO_ReadPin(RADIO_D1_GPIO_Port, RADIO_D1_Pin)
-  ) {
+  //Button UP/START
+  if (!HAL_GPIO_ReadPin(BUT_UP_GPIO_Port, BUT_UP_Pin)) {
     if (button_up < BUTTON_RANGE) button_up++;
     if (button_up == 0) {
       button_up_pressed = 1;
@@ -607,9 +633,8 @@ void button_filter() {
     }
   }
 
-  if (!HAL_GPIO_ReadPin(BUT_DOWN_GPIO_Port, BUT_DOWN_Pin)
-      || HAL_GPIO_ReadPin(RADIO_D2_GPIO_Port, RADIO_D2_Pin)
-  ) {
+  //Button DOWN/FINISH
+  if (!HAL_GPIO_ReadPin(BUT_DOWN_GPIO_Port, BUT_DOWN_Pin)) {
     if (button_down < BUTTON_RANGE) button_down++;
     if (button_down == 0) {
       button_down_pressed = 1;
@@ -632,27 +657,99 @@ void button_filter() {
     }
   }
 
-  if (HAL_GPIO_ReadPin(RADIO_D3_GPIO_Port, RADIO_D3_Pin)
-  ) {
-    if (button_radio4 < BUTTON_RANGE) button_radio4++;
-    if (button_radio4 == 0) {
-      button_radio4_pressed = 1;
-      button_radio4_hold = 1;
-      button_radio4 = BUTTON_RANGE;
+  //Radio A button (UP/START)
+  if (HAL_GPIO_ReadPin(RADIO_D1_GPIO_Port, RADIO_D1_Pin)) {
+    if (radio_a < RADIO_RANGE) radio_a++;
+    if (radio_a == 0) {
+      radio_a_pressed = 1;
+      radio_a_hold = 1;
+      radio_a = RADIO_RANGE;
     }
-    if (button_radio4 == BUTTON_RANGE) {
-      if (button_radio4_repeat-- <= 0) {
-        button_radio4_repeated = 1;
-        button_radio4_repeat = BUTTON_REPEAT_PERIOD;
+    if (radio_a == RADIO_RANGE) {
+      if (radio_a_repeat-- <= 0) {
+        radio_a_repeated = 1;
+        radio_a_repeat = BUTTON_REPEAT_PERIOD;
       }
     }
   } else {
-    if (button_radio4 > -BUTTON_RANGE) button_radio4--;
-    if (button_radio4 == 0) {
-      button_radio4_unpressed = 1;
-      button_radio4_hold = 0;
-      button_radio4 = -BUTTON_RANGE;
-      button_radio4_repeat = BUTTON_REPEAT_DELAY;
+    if (radio_a > -RADIO_RANGE) radio_a--;
+    if (radio_a == 0) {
+      radio_a_unpressed = 1;
+      radio_a_hold = 0;
+      radio_a = -RADIO_RANGE;
+      radio_a_repeat = BUTTON_REPEAT_DELAY;
+    }
+  }
+
+  //Radio B button (MODE)
+  if (HAL_GPIO_ReadPin(RADIO_D0_GPIO_Port, RADIO_D0_Pin)) {
+    if (radio_b < RADIO_RANGE) radio_b++;
+    if (radio_b == 0) {
+      radio_b_pressed = 1;
+      radio_b_hold = 1;
+      radio_b = RADIO_RANGE;
+    }
+    if (radio_b == RADIO_RANGE) {
+      if (radio_b_repeat-- <= 0) {
+        radio_b_repeated = 1;
+        radio_b_repeat = BUTTON_REPEAT_PERIOD;
+      }
+    }
+  } else {
+    if (radio_b > -RADIO_RANGE) radio_b--;
+    if (radio_b == 0) {
+      radio_b_unpressed = 1;
+      radio_b_hold = 0;
+      radio_b = -RADIO_RANGE;
+      radio_b_repeat = BUTTON_REPEAT_DELAY;
+    }
+  }
+
+  //Radio C button (DOWN/FINISH)
+  if (HAL_GPIO_ReadPin(RADIO_D2_GPIO_Port, RADIO_D2_Pin)) {
+    if (radio_c < RADIO_RANGE) radio_c++;
+    if (radio_c == 0) {
+      radio_c_pressed = 1;
+      radio_c_hold = 1;
+      radio_c = RADIO_RANGE;
+    }
+    if (radio_c == RADIO_RANGE) {
+      if (radio_c_repeat-- <= 0) {
+        radio_c_repeated = 1;
+        radio_c_repeat = BUTTON_REPEAT_PERIOD;
+      }
+    }
+  } else {
+    if (radio_c > -RADIO_RANGE) radio_c--;
+    if (radio_c == 0) {
+      radio_c_unpressed = 1;
+      radio_c_hold = 0;
+      radio_c = -RADIO_RANGE;
+      radio_c_repeat = BUTTON_REPEAT_DELAY;
+    }
+  }
+
+  //Radio D button
+  if (HAL_GPIO_ReadPin(RADIO_D3_GPIO_Port, RADIO_D3_Pin)) {
+    if (radio_d < RADIO_RANGE) radio_d++;
+    if (radio_d == 0) {
+      radio_d_pressed = 1;
+      radio_d_hold = 1;
+      radio_d = RADIO_RANGE;
+    }
+    if (radio_d == RADIO_RANGE) {
+      if (radio_d_repeat-- <= 0) {
+        radio_d_repeated = 1;
+        radio_d_repeat = BUTTON_REPEAT_PERIOD;
+      }
+    }
+  } else {
+    if (radio_d > -RADIO_RANGE) radio_d--;
+    if (radio_d == 0) {
+      radio_d_unpressed = 1;
+      radio_d_hold = 0;
+      radio_d = -RADIO_RANGE;
+      radio_d_repeat = BUTTON_REPEAT_DELAY;
     }
   }
 }
@@ -1008,17 +1105,17 @@ void main_loop() {
     }
 
     //яркасць
-    if ((button_up_pressed || button_down_pressed)
+    if ((button_up_pressed || button_down_pressed || radio_a_pressed || radio_c_pressed)
         && ((program == PROGRAM_CLOCK && mode == 0)
             || (program == PROGRAM_STOPWATCH && mode == 2)
             || (program == PROGRAM_TIMER3 && mode == 0)
             || (program == PROGRAM_NUMBERS && mode == 3)
             || (program == PROGRAM_COUNT && mode == 2)))
     {
-      if (button_up_pressed) {
+      if (button_up_pressed || radio_a_pressed) {
         if (brightness_index < BRIGHTNESS_STEPS - 1) brightness_index++;
       }
-      if (button_down_pressed) {
+      if (button_down_pressed || radio_c_pressed) {
         if (brightness_index > 0) brightness_index--;
       }
       __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, brightness[brightness_index]);
@@ -1036,7 +1133,7 @@ void main_loop() {
     }
 
     //Кнопка змены рэжыму (жоўтая)
-    if (button_mode_pressed) {
+    if (button_mode_pressed || radio_b_pressed) {
       mode++;
       if (mode_back) {
         mode_back = 0;
@@ -1062,8 +1159,8 @@ void main_loop() {
     }
 
     //пераключэнне праграмы
-    if (mode == 1 && (button_up_pressed || button_down_pressed)) {
-      program += button_up_pressed ? 1 : -1;
+    if (mode == 1 && (button_up_pressed || button_down_pressed || radio_a_pressed || radio_c_pressed)) {
+      program += (button_up_pressed || radio_a_pressed) ? 1 : -1;
       if (program >= PROGRAM_CNT) program = 0;
       if (program < 0) program = PROGRAM_CNT - 1;
       mode_back = 1;
@@ -1071,14 +1168,15 @@ void main_loop() {
     }
 
     //наладка сігналу
-    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
+            || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated)
         && ((program == PROGRAM_CLOCK && mode == 2)
             || (program == PROGRAM_NUMBERS && mode == 2)))
     {
-      if (button_up_pressed || button_up_repeated) {
+      if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         signal_index = MIN(signal_index + 1, SIGNAL_STEPS - 1);
       }
-      if (button_down_pressed || button_down_repeated) {
+      if (button_down_pressed || button_down_repeated || radio_c_pressed || radio_c_repeated) {
         signal_index = MAX(signal_index - 1, 0);
       }
       mode_back = 1;
@@ -1088,7 +1186,8 @@ void main_loop() {
     //наладка часу
     if (((program == PROGRAM_CLOCK && mode >= 3)
         || (program == PROGRAM_NUMBERS && mode >= 4))
-        && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated))
+        && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
+            || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated))
     {
       uint8_t Out[2];
       if (program == PROGRAM_CLOCK) {
@@ -1096,14 +1195,14 @@ void main_loop() {
       } else {
         Out[0] = mode - 4;
       }
-      if (button_up_pressed || button_up_repeated) {
+      if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         switch (Out[0]) {
         case 2: Out[1] = IntToBCD((BCDToInt(Time[2]) + 1) % 24); break;
         case 1: Out[1] = IntToBCD((BCDToInt(Time[1]) + 1) % 60); break;
         case 0: Out[1] = 0; break;
         }
       }
-      if (button_down_pressed || button_down_repeated) {
+      if (button_down_pressed || button_down_repeated || radio_c_pressed || radio_c_repeated) {
         switch (Out[0]) {
         case 2: Out[1] = IntToBCD((BCDToInt(Time[2]) + 23) % 24); break;
         case 1: Out[1] = IntToBCD((BCDToInt(Time[1]) + 59) % 60); break;
@@ -1117,23 +1216,25 @@ void main_loop() {
     }
 
     //наладка спосабу старта секундамера
-    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
+          || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated)
         && (program == PROGRAM_STOPWATCH && mode == 3))
     {
-      sw_start = (sw_start + ((button_up_pressed || button_up_repeated) ? 1 : 3)) % 4;
+      sw_start = (sw_start + ((button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) ? 1 : 3)) % 4;
       mode_back = 1;
       refresh = 1;
     }
 
     //наладка дакладнасці секундамера
-    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
+           || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated)
         && (program == PROGRAM_STOPWATCH && mode == 4))
     {
-      if (button_up_pressed || button_up_repeated) {
+      if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         sw_precision = sw_precision + 1;
         if (sw_precision > 2) sw_precision = 0;
       }
-      if (button_down_pressed || button_down_repeated) {
+      if (button_down_pressed || button_down_repeated || radio_c_pressed || radio_c_repeated) {
         sw_precision = sw_precision - 1;
         if (sw_precision < 0) sw_precision = 2;
       }
@@ -1142,7 +1243,8 @@ void main_loop() {
     }
 
     //наладка гуку секундамера
-    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated)
+    if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
+          || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated)
         && (program == PROGRAM_STOPWATCH && mode == 5))
     {
       sw_sound = sw_sound ? 0 : 1;
@@ -1151,8 +1253,8 @@ void main_loop() {
     }
 
     //Секундамер - старт (аўта зброс, перазапуск пасля паўзы, перазапуск пасля спліта)
-    if ((button_up_pressed && program == PROGRAM_STOPWATCH && mode == 0 && sw_start != 1)
-        || (button_up_unpressed && program == PROGRAM_STOPWATCH && mode == 0 && sw_start == 1))
+    if (((button_up_pressed || radio_a_pressed) && program == PROGRAM_STOPWATCH && mode == 0 && sw_start != 1)
+        || ((button_up_unpressed || radio_a_unpressed) && program == PROGRAM_STOPWATCH && mode == 0 && sw_start == 1))
     {
       if (sw_state == SW_READY) {
         sw_start_time = time;
@@ -1181,14 +1283,14 @@ void main_loop() {
     }
 
     //Секундамер - зброс
-    if (button_up_repeated && program == PROGRAM_STOPWATCH && mode == 0 && sw_state != SW_READY) {
+    if ((button_up_repeated || radio_a_repeated || radio_d_repeated) && program == PROGRAM_STOPWATCH && mode == 0 && sw_state != SW_READY) {
       sw_state = SW_READY;
       sw_time = 0;
       refresh = 1;
     }
 
     //Секундамер - стоп
-    if (button_down_pressed && program == PROGRAM_STOPWATCH && mode == 0 && sw_state == SW_STARTED) {
+    if ((button_down_pressed || radio_c_pressed) && program == PROGRAM_STOPWATCH && mode == 0 && sw_state == SW_STARTED) {
       sw_state = SW_STOPPED;
       sw_time = time - sw_start_time;
       if (sw_time < 0) sw_time += 24*60*60*100;
@@ -1226,9 +1328,10 @@ void main_loop() {
     }
     //Таймер. Наладка стартавага часу
     if ((program == PROGRAM_TIMER3 && mode >= 2)
-        && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated))
+        && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
+            || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated))
     {
-      if (button_up_pressed || button_up_repeated) {
+      if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         switch (mode) {
         case 2: t3_start_time += (t3_start_time / 100 % 60 < 59) ? (1*100) : (-59*100); break;
         //case 3: t3_start_time += (t3_start_time / (60*100) % 60 < 59) ? (1*60*100) : (-59*60*100); break;
@@ -1236,7 +1339,7 @@ void main_loop() {
         case 4: t3_start_time += (t3_start_time / (60*60*100) % 24 < 23) ? (1*60*60*100) : (-23*60*60*100); break;
         }
       }
-      if (button_down_pressed || button_down_repeated) {
+      if (button_down_pressed || button_down_repeated || radio_c_pressed || radio_c_repeated) {
         switch (mode) {
         case 2: t3_start_time += (t3_start_time / 100 % 60 > 0) ? (-1*100) : (59*100); break;
         //case 3: t3_start_time += (t3_start_time / (60*100) % 60 > 0) ? (-1*60*100) : (59*60*100); break;
@@ -1252,17 +1355,17 @@ void main_loop() {
     //нумары
     if (program == PROGRAM_NUMBERS && mode == 0)
     {
-      if (button_up_pressed || button_up_repeated) {
+      if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         number++;
         if (number >= 1000) number = 0;
         refresh = 1;
       }
-      if (button_down_pressed || button_down_repeated) {
+      if (button_down_pressed || button_down_repeated || radio_c_pressed || radio_c_repeated) {
         number--;
         if (number < 0) number = 999;
         refresh = 1;
       }
-      if ((button_up_hold && button_down_hold) || button_radio4_repeated) {
+      if ((button_up_hold && button_down_hold) || radio_d_repeated) {
         number = 0;
         refresh = 1;
       }
@@ -1271,7 +1374,7 @@ void main_loop() {
     //Лік гульні
     if (program == PROGRAM_COUNT && mode == 0)
     {
-      if (button_up_unpressed) {
+      if (button_up_unpressed || radio_a_unpressed) {
         if (count_left_changed) {
           count_left_changed = 0;
         } else {
@@ -1279,13 +1382,13 @@ void main_loop() {
           refresh = 1;
         }
       }
-      if (button_up_repeated && !count_left_changed) {
+      if ((button_up_repeated || radio_a_repeated) && !count_left_changed) {
         count_left--;
         count_left_changed = 1;
         refresh = 1;
       }
 
-      if (button_down_unpressed) {
+      if (button_down_unpressed || radio_c_unpressed) {
         if (count_right_changed) {
           count_right_changed = 0;
         } else {
@@ -1293,7 +1396,7 @@ void main_loop() {
           refresh = 1;
         }
       }
-      if (button_down_repeated && !count_right_changed) {
+      if ((button_down_repeated || radio_c_repeated) && !count_right_changed) {
         count_right--;
         count_right_changed = 1;
         refresh = 1;
@@ -1306,7 +1409,7 @@ void main_loop() {
         count_right_changed = 1;
         refresh = 1;
       }
-      if (button_radio4_repeated) {
+      if (radio_d_repeated) {
         count_left = 0;
         count_right = 0;
         refresh = 1;
