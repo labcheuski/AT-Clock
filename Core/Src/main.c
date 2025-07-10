@@ -861,21 +861,21 @@ void show_timer3_setup(int time, int start_time, int mode, int blink) {
   if (!blink) mode = 0;
   //момант старту
   start_time /= 100;
-  if (mode != 2) p10_putnumber4x7(60, 0, start_time % 10, 0);
+  if (mode != 3) p10_putnumber4x7(60, 0, start_time % 10, 0);
   start_time /= 10;
-  if (mode != 2) p10_putnumber4x7(55, 0, start_time % 6, 0);
+  if (mode != 3) p10_putnumber4x7(55, 0, start_time % 6, 0);
   p10_setxy(53, 2, 1);
   p10_setxy(53, 4, 1);
   start_time /= 6;
-  if (mode != 3) p10_putnumber4x7(48, 0, start_time % 10, 0);
+  if (mode != 4) p10_putnumber4x7(48, 0, start_time % 10, 0);
   start_time /= 10;
-  if (mode != 3) p10_putnumber4x7(43, 0, start_time % 6, 0);
+  if (mode != 4) p10_putnumber4x7(43, 0, start_time % 6, 0);
   p10_setxy(41, 2, 1);
   p10_setxy(41, 4, 1);
   start_time /= 6;
-  if (mode != 4) p10_putnumber4x7(36, 0, start_time % 10, 0);
+  if (mode != 5) p10_putnumber4x7(36, 0, start_time % 10, 0);
   start_time /= 10;
-  if (start_time > 0) if (mode != 4) p10_putnumber4x7(31, 0, start_time % 10, 0);
+  if (start_time > 0) if (mode != 5) p10_putnumber4x7(31, 0, start_time % 10, 0);
 
   //таймер
   if (time <= -1*60*60*100) {
@@ -1141,7 +1141,7 @@ void main_loop() {
       }
       if (program == PROGRAM_CLOCK && mode > 5) mode = 0;
       if (program == PROGRAM_STOPWATCH && mode > 5) mode = 0;
-      if (program == PROGRAM_TIMER3 && mode > 4) mode = 0;
+      if (program == PROGRAM_TIMER3 && mode > 5) mode = 0;
       if (program == PROGRAM_NUMBERS && mode > 6) mode = 0;
       if (program == PROGRAM_COUNT && mode > 2) mode = 0;
       refresh = 1;
@@ -1171,7 +1171,8 @@ void main_loop() {
     if ((button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
             || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated)
         && ((program == PROGRAM_CLOCK && mode == 2)
-            || (program == PROGRAM_NUMBERS && mode == 2)))
+            || (program == PROGRAM_NUMBERS && mode == 2)
+            || (program == PROGRAM_TIMER3 && mode == 2)))
     {
       if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         signal_index = MIN(signal_index + 1, SIGNAL_STEPS - 1);
@@ -1327,24 +1328,24 @@ void main_loop() {
       }
     }
     //Таймер. Наладка стартавага часу
-    if ((program == PROGRAM_TIMER3 && mode >= 2)
+    if ((program == PROGRAM_TIMER3 && mode >= 3)
         && (button_up_pressed || button_up_repeated || button_down_pressed || button_down_repeated
             || radio_a_pressed || radio_a_repeated || radio_c_pressed || radio_c_repeated))
     {
       if (button_up_pressed || button_up_repeated || radio_a_pressed || radio_a_repeated) {
         switch (mode) {
-        case 2: t3_start_time += (t3_start_time / 100 % 60 < 59) ? (1*100) : (-59*100); break;
-        //case 3: t3_start_time += (t3_start_time / (60*100) % 60 < 59) ? (1*60*100) : (-59*60*100); break;
-        case 3: t3_start_time = (t3_start_time + 1*60*100) % (24*60*60*100); break;
-        case 4: t3_start_time += (t3_start_time / (60*60*100) % 24 < 23) ? (1*60*60*100) : (-23*60*60*100); break;
+        case 3: t3_start_time += (t3_start_time / 100 % 60 < 59) ? (1*100) : (-59*100); break;
+        //case 4: t3_start_time += (t3_start_time / (60*100) % 60 < 59) ? (1*60*100) : (-59*60*100); break;
+        case 4: t3_start_time = (t3_start_time + 1*60*100) % (24*60*60*100); break;
+        case 5: t3_start_time += (t3_start_time / (60*60*100) % 24 < 23) ? (1*60*60*100) : (-23*60*60*100); break;
         }
       }
       if (button_down_pressed || button_down_repeated || radio_c_pressed || radio_c_repeated) {
         switch (mode) {
-        case 2: t3_start_time += (t3_start_time / 100 % 60 > 0) ? (-1*100) : (59*100); break;
-        //case 3: t3_start_time += (t3_start_time / (60*100) % 60 > 0) ? (-1*60*100) : (59*60*100); break;
-        case 3: t3_start_time += (t3_start_time / (60*100) > 0) ? (-1*60*100) : ((24*60 - 1)*60*100); break;
-        case 4: t3_start_time += (t3_start_time / (60*60*100) % 24 > 0) ? (-1*60*60*100) : (23*60*60*100); break;
+        case 3: t3_start_time += (t3_start_time / 100 % 60 > 0) ? (-1*100) : (59*100); break;
+        //case 4: t3_start_time += (t3_start_time / (60*100) % 60 > 0) ? (-1*60*100) : (59*60*100); break;
+        case 4: t3_start_time += (t3_start_time / (60*100) > 0) ? (-1*60*100) : ((24*60 - 1)*60*100); break;
+        case 5: t3_start_time += (t3_start_time / (60*60*100) % 24 > 0) ? (-1*60*60*100) : (23*60*60*100); break;
         }
       }
       refresh = 1;
@@ -1477,6 +1478,7 @@ void main_loop() {
 
       //Інтэрвал / Сігнал
       else if ((program == PROGRAM_CLOCK && mode == 2)
+          || (program == PROGRAM_TIMER3 && mode == 2)
           || (program == PROGRAM_NUMBERS && mode == 2))
       {
         p10_putscreen(p10_signal);
@@ -1507,7 +1509,7 @@ void main_loop() {
       else if (program == PROGRAM_TIMER3 && mode == 0 && brightness_freeze == 0) {
         show_timer3(t3_time);
       }
-      else if (program == PROGRAM_TIMER3 && mode >= 2) {
+      else if (program == PROGRAM_TIMER3 && mode >= 3) {
         show_timer3_setup(t3_time, t3_start_time, mode, subsecond >= 7 && blink_freeze == 0);
       }
 
